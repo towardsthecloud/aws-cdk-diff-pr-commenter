@@ -24409,7 +24409,7 @@ function diffIsEmpty(diff) {
 // src/cdk/index.ts
 async function run() {
   const inputs = {
-    token: core.getInput("token", { required: false }) || process.env.GITHUB_TOKEN || "",
+    token: core.getInput("token", { required: true }),
     diffFile: core.getInput("diff-file", { required: true }),
     header: core.getInput("header", { required: true }),
     skipEmpty: core.getBooleanInput("skip-empty", { required: false })
