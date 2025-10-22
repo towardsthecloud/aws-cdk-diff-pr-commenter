@@ -24412,8 +24412,7 @@ async function run() {
     token: core.getInput("token", { required: false }) || process.env.GITHUB_TOKEN || "",
     diffFile: core.getInput("diff-file", { required: true }),
     header: core.getInput("header", { required: true }),
-    skipEmpty: core.getBooleanInput("skip-empty", { required: false }),
-    skipComment: core.getBooleanInput("skip-comment", { required: false })
+    skipEmpty: core.getBooleanInput("skip-empty", { required: false })
   };
   const octokit = github2.getOctokit(inputs.token);
   const cdkDiff = await core.group("Parse CDK diff", async () => {
@@ -24432,7 +24431,7 @@ async function run() {
   await core.group("Adding diff to step summary", async () => {
     await core.summary.addRaw(diffMarkdown).write();
   });
-  if (!inputs.skipComment && (!inputs.skipEmpty || !cdkDiffsAreEmpty(renderedDiff)) && ["pull_request", "pull_request_target"].includes(github2.context.eventName)) {
+  if ((!inputs.skipEmpty || !cdkDiffsAreEmpty(renderedDiff)) && ["pull_request", "pull_request_target"].includes(github2.context.eventName)) {
     await core.group("Render comment", () => {
       return createOrUpdateComment({ octokit, content: diffMarkdown });
     });
