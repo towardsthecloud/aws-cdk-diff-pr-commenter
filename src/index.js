@@ -411,7 +411,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers = connectOptions.headers || {};
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
-      debug("making CONNECT request");
+      debug2("making CONNECT request");
       var connectReq = self.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
@@ -431,40 +431,40 @@ var require_tunnel = __commonJS({
         connectReq.removeAllListeners();
         socket.removeAllListeners();
         if (res.statusCode !== 200) {
-          debug(
+          debug2(
             "tunneling socket could not be established, statusCode=%d",
             res.statusCode
           );
           socket.destroy();
-          var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-          error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
+          error2.code = "ECONNRESET";
+          options.request.emit("error", error2);
           self.removeSocket(placeholder);
           return;
         }
         if (head.length > 0) {
-          debug("got illegal response body from proxy");
+          debug2("got illegal response body from proxy");
           socket.destroy();
-          var error = new Error("got illegal response body from proxy");
-          error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          var error2 = new Error("got illegal response body from proxy");
+          error2.code = "ECONNRESET";
+          options.request.emit("error", error2);
           self.removeSocket(placeholder);
           return;
         }
-        debug("tunneling connection has established");
+        debug2("tunneling connection has established");
         self.sockets[self.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
         connectReq.removeAllListeners();
-        debug(
+        debug2(
           "tunneling socket could not be established, cause=%s\n",
           cause.message,
           cause.stack
         );
-        var error = new Error("tunneling socket could not be established, cause=" + cause.message);
-        error.code = "ECONNRESET";
-        options.request.emit("error", error);
+        var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
+        error2.code = "ECONNRESET";
+        options.request.emit("error", error2);
         self.removeSocket(placeholder);
       }
     };
@@ -519,9 +519,9 @@ var require_tunnel = __commonJS({
       }
       return target;
     }
-    var debug;
+    var debug2;
     if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-      debug = function() {
+      debug2 = function() {
         var args = Array.prototype.slice.call(arguments);
         if (typeof args[0] === "string") {
           args[0] = "TUNNEL: " + args[0];
@@ -531,10 +531,10 @@ var require_tunnel = __commonJS({
         console.error.apply(console, args);
       };
     } else {
-      debug = function() {
+      debug2 = function() {
       };
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
   }
 });
 
@@ -5595,7 +5595,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
         throw new TypeError("Body is unusable");
       }
       const promise = createDeferredPromise();
-      const errorSteps = (error) => promise.reject(error);
+      const errorSteps = (error2) => promise.reject(error2);
       const successSteps = (data) => {
         try {
           promise.resolve(convertBytesToJSValue(data));
@@ -5881,16 +5881,16 @@ var require_request = __commonJS({
           this.onError(err);
         }
       }
-      onError(error) {
+      onError(error2) {
         this.onFinally();
         if (channels.error.hasSubscribers) {
-          channels.error.publish({ request: this, error });
+          channels.error.publish({ request: this, error: error2 });
         }
         if (this.aborted) {
           return;
         }
         this.aborted = true;
-        return this[kHandler].onError(error);
+        return this[kHandler].onError(error2);
       }
       onFinally() {
         if (this.errorHandler) {
@@ -6753,8 +6753,8 @@ var require_RedirectHandler = __commonJS({
       onUpgrade(statusCode, headers, socket) {
         this.handler.onUpgrade(statusCode, headers, socket);
       }
-      onError(error) {
-        this.handler.onError(error);
+      onError(error2) {
+        this.handler.onError(error2);
       }
       onHeaders(statusCode, headers, resume, statusText) {
         this.location = this.history.length >= this.maxRedirections || util.isDisturbed(this.opts.body) ? null : parseLocation(statusCode, headers);
@@ -8898,7 +8898,7 @@ var require_pool = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory;
-        this.on("connectionError", (origin2, targets, error) => {
+        this.on("connectionError", (origin2, targets, error2) => {
           for (const target of targets) {
             const idx = this[kClients].indexOf(target);
             if (idx !== -1) {
@@ -10509,13 +10509,13 @@ var require_mock_utils = __commonJS({
       if (mockDispatch2.data.callback) {
         mockDispatch2.data = { ...mockDispatch2.data, ...mockDispatch2.data.callback(opts) };
       }
-      const { data: { statusCode, data, headers, trailers, error }, delay, persist } = mockDispatch2;
+      const { data: { statusCode, data, headers, trailers, error: error2 }, delay, persist } = mockDispatch2;
       const { timesInvoked, times } = mockDispatch2;
       mockDispatch2.consumed = !persist && timesInvoked >= times;
       mockDispatch2.pending = timesInvoked < times;
-      if (error !== null) {
+      if (error2 !== null) {
         deleteMockDispatch(this[kDispatches], key);
-        handler2.onError(error);
+        handler2.onError(error2);
         return true;
       }
       if (typeof delay === "number" && delay > 0) {
@@ -10553,19 +10553,19 @@ var require_mock_utils = __commonJS({
         if (agent.isMockActive) {
           try {
             mockDispatch.call(this, opts, handler2);
-          } catch (error) {
-            if (error instanceof MockNotMatchedError) {
+          } catch (error2) {
+            if (error2 instanceof MockNotMatchedError) {
               const netConnect = agent[kGetNetConnect]();
               if (netConnect === false) {
-                throw new MockNotMatchedError(`${error.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
+                throw new MockNotMatchedError(`${error2.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
               }
               if (checkNetConnect(netConnect, origin)) {
                 originalDispatch.call(this, opts, handler2);
               } else {
-                throw new MockNotMatchedError(`${error.message}: subsequent request to origin ${origin} was not allowed (net.connect is not enabled for this origin)`);
+                throw new MockNotMatchedError(`${error2.message}: subsequent request to origin ${origin} was not allowed (net.connect is not enabled for this origin)`);
               }
             } else {
-              throw error;
+              throw error2;
             }
           }
         } else {
@@ -10728,11 +10728,11 @@ var require_mock_interceptor = __commonJS({
       /**
        * Mock an undici request with a defined error.
        */
-      replyWithError(error) {
-        if (typeof error === "undefined") {
+      replyWithError(error2) {
+        if (typeof error2 === "undefined") {
           throw new InvalidArgumentError("error must be defined");
         }
-        const newMockDispatch = addMockDispatch(this[kDispatches], this[kDispatchKey], { error });
+        const newMockDispatch = addMockDispatch(this[kDispatches], this[kDispatchKey], { error: error2 });
         return new MockScope(newMockDispatch);
       }
       /**
@@ -13060,17 +13060,17 @@ var require_fetch = __commonJS({
         this.emit("terminated", reason);
       }
       // https://fetch.spec.whatwg.org/#fetch-controller-abort
-      abort(error) {
+      abort(error2) {
         if (this.state !== "ongoing") {
           return;
         }
         this.state = "aborted";
-        if (!error) {
-          error = new DOMException2("The operation was aborted.", "AbortError");
+        if (!error2) {
+          error2 = new DOMException2("The operation was aborted.", "AbortError");
         }
-        this.serializedAbortReason = error;
-        this.connection?.destroy(error);
-        this.emit("terminated", error);
+        this.serializedAbortReason = error2;
+        this.connection?.destroy(error2);
+        this.emit("terminated", error2);
       }
     };
     function fetch(input, init = {}) {
@@ -13174,13 +13174,13 @@ var require_fetch = __commonJS({
         performance.markResourceTiming(timingInfo, originalURL.href, initiatorType, globalThis2, cacheState);
       }
     }
-    function abortFetch(p, request2, responseObject, error) {
-      if (!error) {
-        error = new DOMException2("The operation was aborted.", "AbortError");
+    function abortFetch(p, request2, responseObject, error2) {
+      if (!error2) {
+        error2 = new DOMException2("The operation was aborted.", "AbortError");
       }
-      p.reject(error);
+      p.reject(error2);
       if (request2.body != null && isReadable(request2.body?.stream)) {
-        request2.body.stream.cancel(error).catch((err) => {
+        request2.body.stream.cancel(error2).catch((err) => {
           if (err.code === "ERR_INVALID_STATE") {
             return;
           }
@@ -13192,7 +13192,7 @@ var require_fetch = __commonJS({
       }
       const response = responseObject[kState];
       if (response.body != null && isReadable(response.body?.stream)) {
-        response.body.stream.cancel(error).catch((err) => {
+        response.body.stream.cancel(error2).catch((err) => {
           if (err.code === "ERR_INVALID_STATE") {
             return;
           }
@@ -13972,13 +13972,13 @@ var require_fetch = __commonJS({
               fetchParams.controller.ended = true;
               this.body.push(null);
             },
-            onError(error) {
+            onError(error2) {
               if (this.abort) {
                 fetchParams.controller.off("terminated", this.abort);
               }
-              this.body?.destroy(error);
-              fetchParams.controller.terminate(error);
-              reject(error);
+              this.body?.destroy(error2);
+              fetchParams.controller.terminate(error2);
+              reject(error2);
             },
             onUpgrade(status, headersList, socket) {
               if (status !== 101) {
@@ -14444,8 +14444,8 @@ var require_util4 = __commonJS({
                   }
                   fr[kResult] = result;
                   fireAProgressEvent("load", fr);
-                } catch (error) {
-                  fr[kError] = error;
+                } catch (error2) {
+                  fr[kError] = error2;
                   fireAProgressEvent("error", fr);
                 }
                 if (fr[kState] !== "loading") {
@@ -14454,13 +14454,13 @@ var require_util4 = __commonJS({
               });
               break;
             }
-          } catch (error) {
+          } catch (error2) {
             if (fr[kAborted]) {
               return;
             }
             queueMicrotask(() => {
               fr[kState] = "done";
-              fr[kError] = error;
+              fr[kError] = error2;
               fireAProgressEvent("error", fr);
               if (fr[kState] !== "loading") {
                 fireAProgressEvent("loadend", fr);
@@ -16477,11 +16477,11 @@ var require_connection = __commonJS({
         });
       }
     }
-    function onSocketError(error) {
+    function onSocketError(error2) {
       const { ws } = this;
       ws[kReadyState] = states.CLOSING;
       if (channels.socketError.hasSubscribers) {
-        channels.socketError.publish(error);
+        channels.socketError.publish(error2);
       }
       this.destroy();
     }
@@ -18128,12 +18128,12 @@ var require_oidc_utils = __commonJS({
         var _a2;
         return __awaiter(this, void 0, void 0, function* () {
           const httpclient = _OidcClient.createHttpClient();
-          const res = yield httpclient.getJson(id_token_url).catch((error) => {
+          const res = yield httpclient.getJson(id_token_url).catch((error2) => {
             throw new Error(`Failed to get ID Token. 
  
-        Error Code : ${error.statusCode}
+        Error Code : ${error2.statusCode}
  
-        Error Message: ${error.message}`);
+        Error Message: ${error2.message}`);
           });
           const id_token = (_a2 = res.result) === null || _a2 === void 0 ? void 0 : _a2.value;
           if (!id_token) {
@@ -18154,8 +18154,8 @@ var require_oidc_utils = __commonJS({
             const id_token = yield _OidcClient.getCall(id_token_url);
             (0, core_1.setSecret)(id_token);
             return id_token;
-          } catch (error) {
-            throw new Error(`Error message: ${error.message}`);
+          } catch (error2) {
+            throw new Error(`Error message: ${error2.message}`);
           }
         });
       }
@@ -19277,7 +19277,7 @@ var require_toolrunner = __commonJS({
               this._debug(`STDIO streams have closed for tool '${this.toolPath}'`);
               state.CheckComplete();
             });
-            state.on("done", (error, exitCode) => {
+            state.on("done", (error2, exitCode) => {
               if (stdbuffer.length > 0) {
                 this.emit("stdline", stdbuffer);
               }
@@ -19285,8 +19285,8 @@ var require_toolrunner = __commonJS({
                 this.emit("errline", errbuffer);
               }
               cp.removeAllListeners();
-              if (error) {
-                reject(error);
+              if (error2) {
+                reject(error2);
               } else {
                 resolve(exitCode);
               }
@@ -19381,14 +19381,14 @@ var require_toolrunner = __commonJS({
         this.emit("debug", message);
       }
       _setResult() {
-        let error;
+        let error2;
         if (this.processExited) {
           if (this.processError) {
-            error = new Error(`There was an error when attempting to execute the process '${this.toolPath}'. This may indicate the process failed to start. Error: ${this.processError}`);
+            error2 = new Error(`There was an error when attempting to execute the process '${this.toolPath}'. This may indicate the process failed to start. Error: ${this.processError}`);
           } else if (this.processExitCode !== 0 && !this.options.ignoreReturnCode) {
-            error = new Error(`The process '${this.toolPath}' failed with exit code ${this.processExitCode}`);
+            error2 = new Error(`The process '${this.toolPath}' failed with exit code ${this.processExitCode}`);
           } else if (this.processStderr && this.options.failOnStdErr) {
-            error = new Error(`The process '${this.toolPath}' failed because one or more lines were written to the STDERR stream`);
+            error2 = new Error(`The process '${this.toolPath}' failed because one or more lines were written to the STDERR stream`);
           }
         }
         if (this.timeout) {
@@ -19396,7 +19396,7 @@ var require_toolrunner = __commonJS({
           this.timeout = null;
         }
         this.done = true;
-        this.emit("done", error, this.processExitCode);
+        this.emit("done", error2, this.processExitCode);
       }
       static HandleTimeout(state) {
         if (state.done) {
@@ -19779,21 +19779,21 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     exports2.setCommandEcho = setCommandEcho;
     function setFailed2(message) {
       process.exitCode = ExitCode.Failure;
-      error(message);
+      error2(message);
     }
     exports2.setFailed = setFailed2;
     function isDebug() {
       return process.env["RUNNER_DEBUG"] === "1";
     }
     exports2.isDebug = isDebug;
-    function debug(message) {
+    function debug2(message) {
       (0, command_1.issueCommand)("debug", {}, message);
     }
-    exports2.debug = debug;
-    function error(message, properties = {}) {
+    exports2.debug = debug2;
+    function error2(message, properties = {}) {
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
-    exports2.error = error;
+    exports2.error = error2;
     function warning(message, properties = {}) {
       (0, command_1.issueCommand)("warning", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
@@ -20095,8 +20095,8 @@ var require_add = __commonJS({
       }
       if (kind === "error") {
         hook2 = function(method, options) {
-          return Promise.resolve().then(method.bind(null, options)).catch(function(error) {
-            return orig(error, options);
+          return Promise.resolve().then(method.bind(null, options)).catch(function(error2) {
+            return orig(error2, options);
           });
         };
       }
@@ -20889,7 +20889,7 @@ function fetchWrapper(requestOptions) {
     }
     if (status >= 400) {
       const data = await getResponseData(response);
-      const error = new RequestError(toErrorMessage(data), status, {
+      const error2 = new RequestError(toErrorMessage(data), status, {
         response: {
           url,
           status,
@@ -20898,7 +20898,7 @@ function fetchWrapper(requestOptions) {
         },
         request: requestOptions
       });
-      throw error;
+      throw error2;
     }
     return parseSuccessResponseBody ? await getResponseData(response) : response.body;
   }).then((data) => {
@@ -20908,17 +20908,17 @@ function fetchWrapper(requestOptions) {
       headers,
       data
     };
-  }).catch((error) => {
-    if (error instanceof RequestError)
-      throw error;
-    else if (error.name === "AbortError")
-      throw error;
-    let message = error.message;
-    if (error.name === "TypeError" && "cause" in error) {
-      if (error.cause instanceof Error) {
-        message = error.cause.message;
-      } else if (typeof error.cause === "string") {
-        message = error.cause;
+  }).catch((error2) => {
+    if (error2 instanceof RequestError)
+      throw error2;
+    else if (error2.name === "AbortError")
+      throw error2;
+    let message = error2.message;
+    if (error2.name === "TypeError" && "cause" in error2) {
+      if (error2.cause instanceof Error) {
+        message = error2.cause.message;
+      } else if (typeof error2.cause === "string") {
+        message = error2.cause;
       }
     }
     throw new RequestError(message, 500, {
@@ -23557,9 +23557,9 @@ function iterator(octokit, route, parameters) {
             /<([^<>]+)>;\s*rel="next"/
           ) || [])[1];
           return { value: normalizedResponse };
-        } catch (error) {
-          if (error.status !== 409)
-            throw error;
+        } catch (error2) {
+          if (error2.status !== 409)
+            throw error2;
           url = "";
           return {
             value: {
@@ -23988,6 +23988,21 @@ var github2 = __toESM(require_github());
 var github = __toESM(require_github());
 
 // src/cdk/render.ts
+function partitionChanges(changes) {
+  return changes.reduce(
+    (acc, change) => {
+      if (change.changeType === "add") {
+        acc.added.push(change);
+      } else if (change.changeType === "remove") {
+        acc.removed.push(change);
+      } else if (change.changeType === "update") {
+        acc.updated.push(change);
+      }
+      return acc;
+    },
+    { added: [], removed: [], updated: [] }
+  );
+}
 function renderSingleCdkDiff(diff) {
   const result = {
     stackName: diff.stackName
@@ -23995,27 +24010,27 @@ function renderSingleCdkDiff(diff) {
   if (diff.warnings.length > 0) {
     result.warnings = diff.warnings;
   }
-  const addedIam = diff.iamStatementChanges.filter((c) => c.changeType === "add");
-  const removedIam = diff.iamStatementChanges.filter((c) => c.changeType === "remove");
-  const updatedIam = diff.iamStatementChanges.filter((c) => c.changeType === "update");
+  const { added: addedIam, removed: removedIam, updated: updatedIam } = partitionChanges(diff.iamStatementChanges);
   if (addedIam.length > 0) result.addedIamStatements = addedIam;
   if (removedIam.length > 0) result.removedIamStatements = removedIam;
   if (updatedIam.length > 0) result.updatedIamStatements = updatedIam;
-  const addedSg = diff.securityGroupChanges.filter((c) => c.changeType === "add");
-  const removedSg = diff.securityGroupChanges.filter((c) => c.changeType === "remove");
-  const updatedSg = diff.securityGroupChanges.filter((c) => c.changeType === "update");
+  const { added: addedSg, removed: removedSg, updated: updatedSg } = partitionChanges(diff.securityGroupChanges);
   if (addedSg.length > 0) result.addedSecurityGroups = addedSg;
   if (removedSg.length > 0) result.removedSecurityGroups = removedSg;
   if (updatedSg.length > 0) result.updatedSecurityGroups = updatedSg;
-  const addedParams = diff.parameterChanges.filter((c) => c.changeType === "add");
-  const removedParams = diff.parameterChanges.filter((c) => c.changeType === "remove");
-  const updatedParams = diff.parameterChanges.filter((c) => c.changeType === "update");
+  const {
+    added: addedParams,
+    removed: removedParams,
+    updated: updatedParams
+  } = partitionChanges(diff.parameterChanges);
   if (addedParams.length > 0) result.addedParameters = addedParams;
   if (removedParams.length > 0) result.removedParameters = removedParams;
   if (updatedParams.length > 0) result.updatedParameters = updatedParams;
-  const addedResources = diff.resourceChanges.filter((c) => c.changeType === "add");
-  const removedResources = diff.resourceChanges.filter((c) => c.changeType === "remove");
-  const updatedResources = diff.resourceChanges.filter((c) => c.changeType === "update");
+  const {
+    added: addedResources,
+    removed: removedResources,
+    updated: updatedResources
+  } = partitionChanges(diff.resourceChanges);
   if (addedResources.length > 0) result.addedResources = addedResources;
   if (removedResources.length > 0) result.removedResources = removedResources;
   if (updatedResources.length > 0) result.updatedResources = updatedResources;
@@ -24099,91 +24114,104 @@ function renderStackBody(diff) {
     return "";
   }
   let body = "";
-  const totalAdded = (diff.addedIamStatements?.length || 0) + (diff.addedSecurityGroups?.length || 0) + (diff.addedParameters?.length || 0) + (diff.addedResources?.length || 0);
-  const totalUpdated = (diff.updatedIamStatements?.length || 0) + (diff.updatedSecurityGroups?.length || 0) + (diff.updatedParameters?.length || 0) + (diff.updatedResources?.length || 0);
-  const totalRemoved = (diff.removedIamStatements?.length || 0) + (diff.removedSecurityGroups?.length || 0) + (diff.removedParameters?.length || 0) + (diff.removedResources?.length || 0);
+  const totalCreating = (diff.addedIamStatements?.length || 0) + (diff.addedSecurityGroups?.length || 0) + (diff.addedParameters?.length || 0) + (diff.addedResources?.length || 0);
+  const totalUpdating = (diff.updatedIamStatements?.length || 0) + (diff.updatedSecurityGroups?.length || 0) + (diff.updatedParameters?.length || 0) + (diff.updatedResources?.length || 0);
+  const totalDeleting = (diff.removedIamStatements?.length || 0) + (diff.removedSecurityGroups?.length || 0) + (diff.removedParameters?.length || 0) + (diff.removedResources?.length || 0);
   if (diff.stackName) {
-    body += `<details><summary><b>Stack:</b> <code>${diff.stackName}</code> <b>\u2192 Changes: ${totalAdded} to add, ${totalUpdated} to update, ${totalRemoved} to remove</b></summary>
-
-`;
-  } else {
-    body += `<details><summary><b>Changes: ${totalAdded} to add, ${totalUpdated} to update, ${totalRemoved} to remove</b></summary>
-
+    body += `### Stack: ${diff.stackName}
 `;
   }
+  body += `<b>\u2192 Changes: ${totalCreating} to create, ${totalUpdating} to update, ${totalDeleting} to delete</b>
+
+`;
   if (diff.addedIamStatements || diff.updatedIamStatements || diff.removedIamStatements) {
-    body += "### \u{1F510} IAM Statement Changes\n\n";
+    const iamTotal = (diff.addedIamStatements?.length || 0) + (diff.updatedIamStatements?.length || 0) + (diff.removedIamStatements?.length || 0);
+    body += `<details><summary><strong>\u{1F510} IAM Statement Changes (${iamTotal})</strong></summary>
+
+`;
     if (diff.addedIamStatements) {
-      body += `#### \u2728 Added (${diff.addedIamStatements.length})`;
+      body += `##### \u2728 Creating (${diff.addedIamStatements.length})`;
       body += renderIamStatements(diff.addedIamStatements);
       body += "\n\n";
     }
     if (diff.updatedIamStatements) {
-      body += `#### \u267B\uFE0F Updated (${diff.updatedIamStatements.length})`;
+      body += `##### \u267B\uFE0F Updating (${diff.updatedIamStatements.length})`;
       body += renderIamStatements(diff.updatedIamStatements);
       body += "\n\n";
     }
     if (diff.removedIamStatements) {
-      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedIamStatements.length})`;
+      body += `##### \u{1F5D1}\uFE0F Deleting (${diff.removedIamStatements.length})`;
       body += renderIamStatements(diff.removedIamStatements);
       body += "\n\n";
     }
+    body += "<br>\n\n</details>\n\n";
   }
   if (diff.addedSecurityGroups || diff.updatedSecurityGroups || diff.removedSecurityGroups) {
-    body += "### \u{1F512} Security Group Changes\n\n";
+    const sgTotal = (diff.addedSecurityGroups?.length || 0) + (diff.updatedSecurityGroups?.length || 0) + (diff.removedSecurityGroups?.length || 0);
+    body += `<details><summary><strong>\u{1F6E1}\uFE0F Security Group Changes (${sgTotal})</strong></summary>
+
+`;
     if (diff.addedSecurityGroups) {
-      body += `#### \u2728 Added (${diff.addedSecurityGroups.length})`;
+      body += `##### \u2728 Creating (${diff.addedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.addedSecurityGroups);
       body += "\n\n";
     }
     if (diff.updatedSecurityGroups) {
-      body += `#### \u267B\uFE0F Updated (${diff.updatedSecurityGroups.length})`;
+      body += `##### \u267B\uFE0F Updating (${diff.updatedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.updatedSecurityGroups);
       body += "\n\n";
     }
     if (diff.removedSecurityGroups) {
-      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedSecurityGroups.length})`;
+      body += `##### \u{1F5D1}\uFE0F Deleting (${diff.removedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.removedSecurityGroups);
       body += "\n\n";
     }
+    body += "<br>\n\n</details>\n\n";
   }
   if (diff.addedParameters || diff.updatedParameters || diff.removedParameters) {
-    body += "### \u2699\uFE0F Parameter Changes\n\n";
+    const paramTotal = (diff.addedParameters?.length || 0) + (diff.updatedParameters?.length || 0) + (diff.removedParameters?.length || 0);
+    body += `<details><summary><strong>\u2699\uFE0F Parameter Changes (${paramTotal})</strong></summary>
+
+`;
     if (diff.addedParameters) {
-      body += `#### \u2728 Added (${diff.addedParameters.length})`;
+      body += `##### \u2728 Creating (${diff.addedParameters.length})`;
       body += renderParameters(diff.addedParameters);
       body += "\n\n";
     }
     if (diff.updatedParameters) {
-      body += `#### \u267B\uFE0F Updated (${diff.updatedParameters.length})`;
+      body += `##### \u267B\uFE0F Updating (${diff.updatedParameters.length})`;
       body += renderParameters(diff.updatedParameters);
       body += "\n\n";
     }
     if (diff.removedParameters) {
-      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedParameters.length})`;
+      body += `##### \u{1F5D1}\uFE0F Deleting (${diff.removedParameters.length})`;
       body += renderParameters(diff.removedParameters);
       body += "\n\n";
     }
+    body += "<br>\n\n</details>\n\n";
   }
   if (diff.addedResources || diff.updatedResources || diff.removedResources) {
-    body += "### \u{1F4E6} Resource Changes\n\n";
+    const resourceTotal = (diff.addedResources?.length || 0) + (diff.updatedResources?.length || 0) + (diff.removedResources?.length || 0);
+    body += `<details><summary><strong>\u{1F4E6} Resource Changes (${resourceTotal})</strong></summary>
+
+`;
     if (diff.addedResources) {
-      body += `#### \u2728 Added (${diff.addedResources.length})`;
+      body += `##### \u2728 Creating (${diff.addedResources.length})`;
       body += renderResources(diff.addedResources);
       body += "\n\n";
     }
     if (diff.updatedResources) {
-      body += `#### \u267B\uFE0F Updated (${diff.updatedResources.length})`;
+      body += `##### \u267B\uFE0F Updating (${diff.updatedResources.length})`;
       body += renderResources(diff.updatedResources);
       body += "\n\n";
     }
     if (diff.removedResources) {
-      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedResources.length})`;
+      body += `##### \u{1F5D1}\uFE0F Deleting (${diff.removedResources.length})`;
       body += renderResources(diff.removedResources);
       body += "\n\n";
     }
+    body += "<br>\n\n</details>\n\n";
   }
-  body += "</details>";
   return body;
 }
 function renderMarkdown({
@@ -24200,12 +24228,12 @@ function renderMarkdown({
   let body = "";
   const allWarnings = diffs.flatMap((diff) => diff.warnings || []);
   if (allWarnings.length > 0) {
-    body += "### \u26A0\uFE0F Warnings\n\n";
+    body += "> [!WARNING]\n";
     for (const warning of allWarnings) {
       body += `> ${warning}
-
 `;
     }
+    body += "\n";
   }
   const stackBodies = diffs.map((diff) => renderStackBody(diff)).filter((b) => b.length > 0);
   body += stackBodies.join("\n\n<br />\n\n");
@@ -24436,8 +24464,21 @@ async function run() {
   };
   const octokit = github2.getOctokit(inputs.token);
   const cdkDiff = await core.group("Parse CDK diff", async () => {
-    const diffOutput = fs.readFileSync(inputs.diffFile, "utf-8");
-    return parseCdkDiff(diffOutput);
+    let diffOutput;
+    try {
+      diffOutput = fs.readFileSync(inputs.diffFile, "utf-8");
+    } catch (error2) {
+      throw new Error(
+        `Failed to read CDK diff file at '${inputs.diffFile}'. Please verify the file exists and is readable. Original error: ${error2 instanceof Error ? error2.message : String(error2)}`
+      );
+    }
+    try {
+      return parseCdkDiff(diffOutput);
+    } catch (error2) {
+      throw new Error(
+        `Failed to parse CDK diff output. This may indicate the CDK diff command produced malformed output. Original error: ${error2 instanceof Error ? error2.message : String(error2)}`
+      );
+    }
   });
   const renderedDiff = await core.group("Render CDK diff", async () => {
     return renderCdkDiff(cdkDiff);
@@ -24460,9 +24501,33 @@ async function run() {
 async function main() {
   try {
     await run();
-  } catch (error) {
-    if (error instanceof Error) {
-      core.setFailed(error.message);
+  } catch (error2) {
+    if (error2 instanceof Error) {
+      core.error(`Error Type: ${error2.constructor.name}`);
+      core.error(`Error Message: ${error2.message}`);
+      if (error2.stack) {
+        core.debug(`Stack Trace: ${error2.stack}`);
+      }
+      if (error2.message.includes("diff file") || error2.message.includes("readFileSync")) {
+        core.error("This appears to be a file reading error. Please verify:");
+        core.error("  - The diff file path is correct");
+        core.error("  - The file exists and is readable");
+        core.error("  - The CDK diff command ran successfully before this action");
+      } else if (error2.message.includes("parse") || error2.message.includes("CDK diff output")) {
+        core.error("This appears to be a parsing error. Please verify:");
+        core.error("  - The CDK diff output is valid");
+        core.error("  - The CDK version is compatible");
+        core.error("  - The diff file contains expected CDK diff format");
+      } else if (error2.message.includes("GitHub")) {
+        core.error("This appears to be a GitHub API error. Please verify:");
+        core.error("  - The GitHub token has the necessary permissions");
+        core.error("  - The repository exists and is accessible");
+      }
+      core.setFailed(error2.message);
+    } else {
+      const errorMessage = String(error2);
+      core.error(`Unknown error type: ${errorMessage}`);
+      core.setFailed(errorMessage);
     }
   }
 }
