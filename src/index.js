@@ -19752,7 +19752,7 @@ var require_core = __commonJS({
       return inputs.map((input) => input.trim());
     }
     exports2.getMultilineInput = getMultilineInput;
-    function getBooleanInput2(name, options) {
+    function getBooleanInput(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
       const val = getInput2(name, options);
@@ -19763,7 +19763,7 @@ var require_core = __commonJS({
       throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
-    exports2.getBooleanInput = getBooleanInput2;
+    exports2.getBooleanInput = getBooleanInput;
     function setOutput2(name, value) {
       const filePath = process.env["GITHUB_OUTPUT"] || "";
       if (filePath) {
@@ -24035,51 +24035,51 @@ function cdkDiffsAreEmpty(diffs) {
 function renderIamStatements(statements) {
   let result = "";
   for (const stmt of statements) {
-    result += "\n\n    <details><summary>";
+    result += "\n\n<details><summary>";
     result += `<code>${stmt.resource}</code>`;
     result += "</summary>\n\n";
-    result += "    ```\n";
-    result += `    Effect: ${stmt.effect}
+    result += "```\n";
+    result += `Effect: ${stmt.effect}
 `;
-    result += `    Action: ${stmt.action}
+    result += `Action: ${stmt.action}
 `;
-    result += `    Principal: ${stmt.principal}
+    result += `Principal: ${stmt.principal}
 `;
     if (stmt.condition) {
-      result += `    Condition: ${stmt.condition}
+      result += `Condition: ${stmt.condition}
 `;
     }
-    result += "    ```\n\n    </details>";
+    result += "```\n\n</details>";
   }
   return result;
 }
 function renderSecurityGroups(groups) {
   let result = "";
   for (const sg of groups) {
-    result += "\n\n    <details><summary>";
+    result += "\n\n<details><summary>";
     result += `<code>${sg.group}</code>`;
     result += "</summary>\n\n";
-    result += "    ```\n";
-    result += `    Direction: ${sg.direction}
+    result += "```\n";
+    result += `Direction: ${sg.direction}
 `;
-    result += `    Protocol: ${sg.protocol}
+    result += `Protocol: ${sg.protocol}
 `;
-    result += `    Peer: ${sg.peer}
+    result += `Peer: ${sg.peer}
 `;
-    result += "    ```\n\n    </details>";
+    result += "```\n\n</details>";
   }
   return result;
 }
 function renderParameters(params) {
   let result = "";
   for (const param of params) {
-    result += "\n\n    <details><summary>";
+    result += "\n\n<details><summary>";
     result += `<code>${param.name}</code>`;
     result += "</summary>\n\n";
-    result += "    ```json\n";
-    result += `    ${param.value}
+    result += "```json\n";
+    result += `${param.value}
 `;
-    result += "    ```\n\n    </details>";
+    result += "```\n\n</details>";
   }
   return result;
 }
@@ -24087,7 +24087,7 @@ function renderResources(resources) {
   let result = "";
   for (const resource of resources) {
     result += `
-    - **${resource.resourceType}**: \`${resource.logicalId}\``;
+- **${resource.resourceType}**: \`${resource.logicalId}\``;
     if (resource.physicalId) {
       result += ` (\`${resource.physicalId}\`)`;
     }
@@ -24099,89 +24099,91 @@ function renderStackBody(diff) {
     return "";
   }
   let body = "";
-  if (diff.stackName) {
-    body += `**Stack**: \`${diff.stackName}\`
-`;
-  }
   const totalAdded = (diff.addedIamStatements?.length || 0) + (diff.addedSecurityGroups?.length || 0) + (diff.addedParameters?.length || 0) + (diff.addedResources?.length || 0);
   const totalUpdated = (diff.updatedIamStatements?.length || 0) + (diff.updatedSecurityGroups?.length || 0) + (diff.updatedParameters?.length || 0) + (diff.updatedResources?.length || 0);
   const totalRemoved = (diff.removedIamStatements?.length || 0) + (diff.removedSecurityGroups?.length || 0) + (diff.removedParameters?.length || 0) + (diff.removedResources?.length || 0);
-  body += `  - <details><summary><b>Changes: ${totalAdded} to add, ${totalUpdated} to update, ${totalRemoved} to remove</b></summary>
+  if (diff.stackName) {
+    body += `<details><summary><b>Stack:</b> <code>${diff.stackName}</code> <b>\u2192 Changes: ${totalAdded} to add, ${totalUpdated} to update, ${totalRemoved} to remove</b></summary>
 
 `;
+  } else {
+    body += `<details><summary><b>Changes: ${totalAdded} to add, ${totalUpdated} to update, ${totalRemoved} to remove</b></summary>
+
+`;
+  }
   if (diff.addedIamStatements || diff.updatedIamStatements || diff.removedIamStatements) {
-    body += "    ### \u{1F510} IAM Statement Changes\n\n";
+    body += "### \u{1F510} IAM Statement Changes\n\n";
     if (diff.addedIamStatements) {
-      body += `    #### \u2728 Added (${diff.addedIamStatements.length})`;
+      body += `#### \u2728 Added (${diff.addedIamStatements.length})`;
       body += renderIamStatements(diff.addedIamStatements);
       body += "\n\n";
     }
     if (diff.updatedIamStatements) {
-      body += `    #### \u267B\uFE0F Updated (${diff.updatedIamStatements.length})`;
+      body += `#### \u267B\uFE0F Updated (${diff.updatedIamStatements.length})`;
       body += renderIamStatements(diff.updatedIamStatements);
       body += "\n\n";
     }
     if (diff.removedIamStatements) {
-      body += `    #### \u{1F5D1}\uFE0F Removed (${diff.removedIamStatements.length})`;
+      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedIamStatements.length})`;
       body += renderIamStatements(diff.removedIamStatements);
       body += "\n\n";
     }
   }
   if (diff.addedSecurityGroups || diff.updatedSecurityGroups || diff.removedSecurityGroups) {
-    body += "    ### \u{1F512} Security Group Changes\n\n";
+    body += "### \u{1F512} Security Group Changes\n\n";
     if (diff.addedSecurityGroups) {
-      body += `    #### \u2728 Added (${diff.addedSecurityGroups.length})`;
+      body += `#### \u2728 Added (${diff.addedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.addedSecurityGroups);
       body += "\n\n";
     }
     if (diff.updatedSecurityGroups) {
-      body += `    #### \u267B\uFE0F Updated (${diff.updatedSecurityGroups.length})`;
+      body += `#### \u267B\uFE0F Updated (${diff.updatedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.updatedSecurityGroups);
       body += "\n\n";
     }
     if (diff.removedSecurityGroups) {
-      body += `    #### \u{1F5D1}\uFE0F Removed (${diff.removedSecurityGroups.length})`;
+      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedSecurityGroups.length})`;
       body += renderSecurityGroups(diff.removedSecurityGroups);
       body += "\n\n";
     }
   }
   if (diff.addedParameters || diff.updatedParameters || diff.removedParameters) {
-    body += "    ### \u2699\uFE0F Parameter Changes\n\n";
+    body += "### \u2699\uFE0F Parameter Changes\n\n";
     if (diff.addedParameters) {
-      body += `    #### \u2728 Added (${diff.addedParameters.length})`;
+      body += `#### \u2728 Added (${diff.addedParameters.length})`;
       body += renderParameters(diff.addedParameters);
       body += "\n\n";
     }
     if (diff.updatedParameters) {
-      body += `    #### \u267B\uFE0F Updated (${diff.updatedParameters.length})`;
+      body += `#### \u267B\uFE0F Updated (${diff.updatedParameters.length})`;
       body += renderParameters(diff.updatedParameters);
       body += "\n\n";
     }
     if (diff.removedParameters) {
-      body += `    #### \u{1F5D1}\uFE0F Removed (${diff.removedParameters.length})`;
+      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedParameters.length})`;
       body += renderParameters(diff.removedParameters);
       body += "\n\n";
     }
   }
   if (diff.addedResources || diff.updatedResources || diff.removedResources) {
-    body += "    ### \u{1F4E6} Resource Changes\n\n";
+    body += "### \u{1F4E6} Resource Changes\n\n";
     if (diff.addedResources) {
-      body += `    #### \u2728 Added (${diff.addedResources.length})`;
+      body += `#### \u2728 Added (${diff.addedResources.length})`;
       body += renderResources(diff.addedResources);
       body += "\n\n";
     }
     if (diff.updatedResources) {
-      body += `    #### \u267B\uFE0F Updated (${diff.updatedResources.length})`;
+      body += `#### \u267B\uFE0F Updated (${diff.updatedResources.length})`;
       body += renderResources(diff.updatedResources);
       body += "\n\n";
     }
     if (diff.removedResources) {
-      body += `    #### \u{1F5D1}\uFE0F Removed (${diff.removedResources.length})`;
+      body += `#### \u{1F5D1}\uFE0F Removed (${diff.removedResources.length})`;
       body += renderResources(diff.removedResources);
       body += "\n\n";
     }
   }
-  body += "  </details>";
+  body += "</details>";
   return body;
 }
 function renderMarkdown({
@@ -24189,8 +24191,9 @@ function renderMarkdown({
   header,
   includeFooter
 }) {
+  const trimmedHeader = header.replace(/^#+\s*/, "");
   if (diffs.length === 0) {
-    return `## ${header}
+    return `## ${trimmedHeader}
 
 **\u2192 No Changes!**`;
   }
@@ -24218,7 +24221,7 @@ _Triggered by @${github.context.actor}`;
     }
     footer += "_";
   }
-  return `## ${header}
+  return `## ${trimmedHeader}
 
 ${body}${footer}`;
 }
@@ -24305,14 +24308,32 @@ function parseSingleStack(stackOutput, stackName) {
       if (match) {
         const changeSymbol = match[1].trim();
         const changeType = changeSymbol === "+" ? "add" : changeSymbol === "-" ? "remove" : "update";
+        let conditionText = match[6].trim();
+        let j = i + 1;
+        while (j < lines.length && lines[j].includes("\u2502")) {
+          const continuationMatch = lines[j].match(/│\s*│\s*│\s*│\s*│\s*│\s*([^│]*)│/);
+          if (continuationMatch) {
+            const continuationText = continuationMatch[1].trim();
+            if (continuationText) {
+              conditionText += `
+${continuationText}`;
+              j++;
+            } else {
+              break;
+            }
+          } else {
+            break;
+          }
+        }
         result.iamStatementChanges.push({
           resource: match[2].trim(),
           effect: match[3].trim(),
           action: match[4].trim(),
           principal: match[5].trim(),
-          condition: match[6].trim(),
+          condition: conditionText,
           changeType
         });
+        i = j - 1;
       }
     }
     if (inSecurityGroupSection && line.includes("\u2502")) {
@@ -24411,8 +24432,7 @@ async function run() {
   const inputs = {
     token: core.getInput("token", { required: true }),
     diffFile: core.getInput("diff-file", { required: true }),
-    header: core.getInput("header", { required: true }),
-    skipEmpty: core.getBooleanInput("skip-empty", { required: false })
+    header: core.getInput("header", { required: true })
   };
   const octokit = github2.getOctokit(inputs.token);
   const cdkDiff = await core.group("Parse CDK diff", async () => {
@@ -24431,7 +24451,7 @@ async function run() {
   await core.group("Adding diff to step summary", async () => {
     await core.summary.addRaw(diffMarkdown).write();
   });
-  if ((!inputs.skipEmpty || !cdkDiffsAreEmpty(renderedDiff)) && ["pull_request", "pull_request_target"].includes(github2.context.eventName)) {
+  if (!cdkDiffsAreEmpty(renderedDiff) && ["pull_request", "pull_request_target"].includes(github2.context.eventName)) {
     await core.group("Render comment", () => {
       return createOrUpdateComment({ octokit, content: diffMarkdown });
     });
