@@ -2,6 +2,8 @@
 
 A GitHub Action that posts the output of `cdk diff` as a comment on Pull Requests. This action helps teams review infrastructure changes directly within their PR workflow, making it easier to catch potential issues before deploying CDK changes.
 
+![AWS CDK Diff PR Comment Example](./images/aws-cdk-diff-pr-comment-example.png)
+
 ## Features
 
 - Automatically posts formatted CDK diff output to PR comments
