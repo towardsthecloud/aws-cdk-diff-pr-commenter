@@ -1,0 +1,24 @@
+name: AWS CDK Diff PR Commenter
+description: Post the output of `cdk diff` to a Pull Request comment.
+author: Towards the Cloud
+branding:
+  icon: git-pull-request
+  color: orange
+inputs:
+  diff-file:
+    description: Path to the CDK diff output file to post as comment in the Pull Request.
+    required: true
+  token:
+    description: The GitHub or PAT token to use for posting comments to Pull Requests.
+    default: ${{ github.token }}
+  header:
+    description: The header to use for the Pull Request comment.
+    default: 📝 CDK Diff
+outputs:
+  markdown:
+    description: The raw markdown output of the `cdk diff` command
+  empty:
+    description: Whether the `cdk diff` contains any changes or not
+runs:
+  using: node20
+  main: src/index.js
