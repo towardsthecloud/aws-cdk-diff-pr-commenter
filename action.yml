@@ -12,8 +12,9 @@ inputs:
     description: The GitHub or PAT token to use for posting comments to Pull Requests.
     default: ${{ github.token }}
   header:
-    description: The header to use for the Pull Request comment.
-    default: 📝 CDK Diff
+    description: Set a custom header to use for the Pull Request comment.
+  aws-region:
+    description: The AWS region where the infrastructure changes are being applied e.g. us-east-1.
 outputs:
   markdown:
     description: The raw markdown output of the `cdk diff` command

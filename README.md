@@ -16,11 +16,12 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 
 ## Inputs
 
-| Input       | Description                                                             | Required | Default               |
-| ----------- | ----------------------------------------------------------------------- | -------- | --------------------- |
-| `diff-file` | Path to the CDK diff output file to post as comment in the Pull Request | Yes      | -                     |
-| `token`     | The GitHub or PAT token to use for posting comments to Pull Requests    | Yes      | `${{ github.token }}` |
-| `header`    | Header to use for the Pull Request comment                              | Yes      | `📝 CDK Diff`          |
+| Input        | Description                                                                                                                                                            | Required | Default               |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| `diff-file`  | Path to the CDK diff output file to post as comment in the Pull Request                                                                                                | Yes      | -                     |
+| `token`      | The GitHub or PAT token to use for posting comments to Pull Requests                                                                                                   | No       | `${{ github.token }}` |
+| `header`     | Set a custom header to use for the Pull Request comment. Useful when running multiple CDK diff comments in the same PR (e.g., "Dev Environment" vs "Prod Environment") | No       | -                     |
+| `aws-region` | The AWS region where the infrastructure changes are being applied e.g. us-east-1                                                                                       | No       | -                     |
 
 ## Outputs
 
@@ -34,7 +35,7 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 ### Example 1: Complete Workflow
 
 ```yaml
-name: CDK Diff PR
+name: CDK Diff on Pull Request
 
 on:
   pull_request:
@@ -42,8 +43,8 @@ on:
       - main
 
 jobs:
-  cdk-diff:
-    name: CDK Diff PR branch with environment
+  post-cdk-diff-comment:
+    name: Post CDK Diff Comment to PR
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -59,7 +60,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -67,7 +68,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole  # Replace with your IAM role ARN
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install Dependencies
@@ -77,67 +78,93 @@ jobs:
         run: |
           npx cdk diff --all --no-color > cdk-diff.txt 2>&1 || true
 
-      - name: Post CDK Diff Comment in PR
+      - name: Post CDK Diff Comment
         uses: towardsthecloud/aws-cdk-diff-pr-commenter@v1
         with:
           diff-file: cdk-diff.txt
-          header: |
-            ## CDK Diff for production in ${{ env.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 ```
 
 ### Example 2: Reusable Workflow
 
-Create a reusable workflow in `.github/workflows/cdk-diff-reusable.yml`:
+Create a reusable workflow in `.github/workflows/post-cdk-diff-comment.yml`:
 
 ```yaml
-name: CDK Diff Reusable
+name: Post CDK Diff Comment
 
 on:
   workflow_call:
     inputs:
+      diff-file:
+        description: 'Path to the CDK diff output file'
+        type: string
+        required: true
       aws-region:
-        description: 'AWS Region where resources will be deployed'
+        description: 'AWS Region where resources are deployed'
         type: string
-        required: true
-      environment:
-        description: 'Environment name (e.g., production, staging)'
-        type: string
-        required: true
-      role-to-assume:
-        description: 'AWS IAM role ARN to assume'
-        type: string
-        required: true
-      node-version:
-        description: 'Node.js version to use'
-        type: string
-        default: '20'
+        required: false
 
 jobs:
-  cdk-diff:
-    name: CDK Diff for ${{ inputs.environment }}
+  post-comment:
+    name: Post CDK Diff Comment to PR
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
       pull-requests: write
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Download CDK Diff
+        uses: actions/download-artifact@v4
+        with:
+          name: cdk-diff
+
+      - name: Post CDK Diff Comment
+        uses: towardsthecloud/aws-cdk-diff-pr-commenter@v1
+        with:
+          diff-file: ${{ inputs.diff-file }}
+          aws-region: ${{ inputs.aws-region }}
+```
+
+Then call this workflow from your main CDK diff workflow:
+
+```yaml
+name: CDK Diff on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  generate-cdk-diff:
+    name: Generate CDK Diff
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: "22"
           cache: npm
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.role-to-assume }}
-          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole  # Replace with your IAM role ARN
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Install Dependencies
         run: npm ci
@@ -146,38 +173,19 @@ jobs:
         run: |
           npx cdk diff --all --no-color > cdk-diff.txt 2>&1 || true
 
-      - name: Post CDK Diff Comment in PR
-        uses: towardsthecloud/aws-cdk-diff-pr-commenter@v1
+      - name: Upload CDK Diff
+        uses: actions/upload-artifact@v5
         with:
-          diff-file: cdk-diff.txt
-          header: |
-            ## CDK Diff for ${{ inputs.environment }} in ${{ inputs.aws-region }}
-```
+          name: cdk-diff
+          path: cdk-diff.txt
 
-Then call this workflow from your main workflow:
-
-```yaml
-name: CDK Diff PR
-
-on:
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  diff-production:
-    uses: ./.github/workflows/cdk-diff-reusable.yml
+  post-cdk-diff-comment:
+    name: Post CDK Diff Comment
+    needs: generate-cdk-diff
+    uses: ./.github/workflows/post-cdk-diff-comment.yml
     with:
+      diff-file: cdk-diff.txt
       aws-region: us-east-1
-      environment: production
-      role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole
-
-  diff-staging:
-    uses: ./.github/workflows/cdk-diff-reusable.yml
-    with:
-      aws-region: us-west-2
-      environment: staging
-      role-to-assume: arn:aws:iam::987654321098:role/GitHubActionsRole
 ```
 
 ## Permissions
@@ -186,8 +194,15 @@ This action requires the following permissions:
 
 ```yaml
 permissions:
-  pull-requests: write  # Required to post comments on PRs
   contents: read        # Required to read repository contents
+  pull-requests: write  # Required to post comments on PRs
+```
+
+If you're using AWS OIDC authentication (as shown in the examples above), you'll also need:
+
+```yaml
+permissions:
+  id-token: write       # Required for AWS OIDC authentication
 ```
 
 ## Notes
