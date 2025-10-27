@@ -17598,12 +17598,12 @@ var require_lib = __commonJS({
             throw new Error("Client has already been disposed.");
           }
           const parsedUrl = new URL(requestUrl);
-          let info = this._prepareRequest(verb, parsedUrl, headers);
+          let info5 = this._prepareRequest(verb, parsedUrl, headers);
           const maxTries = this._allowRetries && RetryableHttpVerbs.includes(verb) ? this._maxRetries + 1 : 1;
           let numTries = 0;
           let response;
           do {
-            response = yield this.requestRaw(info, data);
+            response = yield this.requestRaw(info5, data);
             if (response && response.message && response.message.statusCode === HttpCodes.Unauthorized) {
               let authenticationHandler;
               for (const handler2 of this.handlers) {
@@ -17613,7 +17613,7 @@ var require_lib = __commonJS({
                 }
               }
               if (authenticationHandler) {
-                return authenticationHandler.handleAuthentication(this, info, data);
+                return authenticationHandler.handleAuthentication(this, info5, data);
               } else {
                 return response;
               }
@@ -17636,8 +17636,8 @@ var require_lib = __commonJS({
                   }
                 }
               }
-              info = this._prepareRequest(verb, parsedRedirectUrl, headers);
-              response = yield this.requestRaw(info, data);
+              info5 = this._prepareRequest(verb, parsedRedirectUrl, headers);
+              response = yield this.requestRaw(info5, data);
               redirectsRemaining--;
             }
             if (!response.message.statusCode || !HttpResponseRetryCodes.includes(response.message.statusCode)) {
@@ -17666,7 +17666,7 @@ var require_lib = __commonJS({
        * @param info
        * @param data
        */
-      requestRaw(info, data) {
+      requestRaw(info5, data) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve, reject) => {
             function callbackForResult(err, res) {
@@ -17678,7 +17678,7 @@ var require_lib = __commonJS({
                 resolve(res);
               }
             }
-            this.requestRawWithCallback(info, data, callbackForResult);
+            this.requestRawWithCallback(info5, data, callbackForResult);
           });
         });
       }
@@ -17688,12 +17688,12 @@ var require_lib = __commonJS({
        * @param data
        * @param onResult
        */
-      requestRawWithCallback(info, data, onResult) {
+      requestRawWithCallback(info5, data, onResult) {
         if (typeof data === "string") {
-          if (!info.options.headers) {
-            info.options.headers = {};
+          if (!info5.options.headers) {
+            info5.options.headers = {};
           }
-          info.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
+          info5.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
         }
         let callbackCalled = false;
         function handleResult(err, res) {
@@ -17702,7 +17702,7 @@ var require_lib = __commonJS({
             onResult(err, res);
           }
         }
-        const req = info.httpModule.request(info.options, (msg) => {
+        const req = info5.httpModule.request(info5.options, (msg) => {
           const res = new HttpClientResponse(msg);
           handleResult(void 0, res);
         });
@@ -17714,7 +17714,7 @@ var require_lib = __commonJS({
           if (socket) {
             socket.end();
           }
-          handleResult(new Error(`Request timeout: ${info.options.path}`));
+          handleResult(new Error(`Request timeout: ${info5.options.path}`));
         });
         req.on("error", function(err) {
           handleResult(err);
@@ -17750,27 +17750,27 @@ var require_lib = __commonJS({
         return this._getProxyAgentDispatcher(parsedUrl, proxyUrl);
       }
       _prepareRequest(method, requestUrl, headers) {
-        const info = {};
-        info.parsedUrl = requestUrl;
-        const usingSsl = info.parsedUrl.protocol === "https:";
-        info.httpModule = usingSsl ? https : http;
+        const info5 = {};
+        info5.parsedUrl = requestUrl;
+        const usingSsl = info5.parsedUrl.protocol === "https:";
+        info5.httpModule = usingSsl ? https : http;
         const defaultPort = usingSsl ? 443 : 80;
-        info.options = {};
-        info.options.host = info.parsedUrl.hostname;
-        info.options.port = info.parsedUrl.port ? parseInt(info.parsedUrl.port) : defaultPort;
-        info.options.path = (info.parsedUrl.pathname || "") + (info.parsedUrl.search || "");
-        info.options.method = method;
-        info.options.headers = this._mergeHeaders(headers);
+        info5.options = {};
+        info5.options.host = info5.parsedUrl.hostname;
+        info5.options.port = info5.parsedUrl.port ? parseInt(info5.parsedUrl.port) : defaultPort;
+        info5.options.path = (info5.parsedUrl.pathname || "") + (info5.parsedUrl.search || "");
+        info5.options.method = method;
+        info5.options.headers = this._mergeHeaders(headers);
         if (this.userAgent != null) {
-          info.options.headers["user-agent"] = this.userAgent;
+          info5.options.headers["user-agent"] = this.userAgent;
         }
-        info.options.agent = this._getAgent(info.parsedUrl);
+        info5.options.agent = this._getAgent(info5.parsedUrl);
         if (this.handlers) {
           for (const handler2 of this.handlers) {
-            handler2.prepareRequest(info.options);
+            handler2.prepareRequest(info5.options);
           }
         }
-        return info;
+        return info5;
       }
       _mergeHeaders(headers) {
         if (this.requestOptions && this.requestOptions.headers) {
@@ -19760,10 +19760,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issueCommand)("notice", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.notice = notice;
-    function info(message) {
+    function info5(message) {
       process.stdout.write(message + os.EOL);
     }
-    exports2.info = info;
+    exports2.info = info5;
     function startGroup(name) {
       (0, command_1.issue)("group", name);
     }
@@ -23947,13 +23947,15 @@ __export(cdk_exports, {
 });
 module.exports = __toCommonJS(cdk_exports);
 var fs = __toESM(require("fs"));
-var core = __toESM(require_core());
+var core4 = __toESM(require_core());
 var github2 = __toESM(require_github());
 
 // src/cdk/comment.ts
+var core2 = __toESM(require_core());
 var github = __toESM(require_github());
 
 // src/cdk/render.ts
+var core = __toESM(require_core());
 function partitionChanges(changes) {
   return changes.reduce(
     (acc, change) => {
@@ -24003,7 +24005,14 @@ function renderSingleCdkDiff(diff) {
   return result;
 }
 function renderCdkDiff(diffs) {
-  return diffs.map((diff) => renderSingleCdkDiff(diff));
+  core.info(`Rendering ${diffs.length} CDK diff(s)`);
+  const rendered = diffs.map((diff) => {
+    const result = renderSingleCdkDiff(diff);
+    const changeCount = (result.addedIamStatements?.length || 0) + (result.removedIamStatements?.length || 0) + (result.updatedIamStatements?.length || 0) + (result.addedSecurityGroups?.length || 0) + (result.removedSecurityGroups?.length || 0) + (result.updatedSecurityGroups?.length || 0) + (result.addedParameters?.length || 0) + (result.removedParameters?.length || 0) + (result.updatedParameters?.length || 0) + (result.addedResources?.length || 0) + (result.removedResources?.length || 0) + (result.updatedResources?.length || 0);
+    core.info(`Rendered stack '${diff.stackName}' with ${changeCount} total change(s)`);
+    return result;
+  });
+  return rendered;
 }
 function cdkDiffIsEmpty(diff) {
   return !diff.addedIamStatements && !diff.removedIamStatements && !diff.updatedIamStatements && !diff.addedSecurityGroups && !diff.removedSecurityGroups && !diff.updatedSecurityGroups && !diff.addedParameters && !diff.removedParameters && !diff.updatedParameters && !diff.addedResources && !diff.removedResources && !diff.updatedResources;
@@ -24186,7 +24195,9 @@ function renderMarkdown({
   awsRegion
 }) {
   const trimmedHeader = header.replace(/^#+\s*/, "");
+  core2.info(`Rendering markdown for ${diffs.length} diff(s)`);
   if (diffs.length === 0) {
+    core2.info("No changes detected - rendering empty diff message");
     return `## ${trimmedHeader}
 
 **\u2192 No Changes!**`;
@@ -24194,6 +24205,7 @@ function renderMarkdown({
   let body = "";
   const allWarnings = diffs.flatMap((diff) => diff.warnings || []);
   if (allWarnings.length > 0) {
+    core2.info(`Including ${allWarnings.length} warning(s) in markdown output`);
     body += "> [!WARNING]\n";
     for (const warning of allWarnings) {
       body += `> ${warning}
@@ -24202,24 +24214,36 @@ function renderMarkdown({
     body += "\n";
   }
   const stackBodies = diffs.map((diff) => renderStackBody(diff)).filter((b) => b.length > 0);
+  core2.info(`Rendering ${stackBodies.length} non-empty stack(s) to markdown`);
   body += stackBodies.join("\n\n<br />\n\n");
   let footer = "";
-  if (github.context.actor) {
+  const actor = github.context.actor || github.context.payload.pull_request?.user?.login || github.context.payload.sender?.login;
+  if (actor) {
+    core2.info(`Building footer with actor: ${actor}`);
     footer = "\n\n---\n\n";
-    footer += `<details><summary><em>Triggered by @${github.context.actor}</em></summary>
+    footer += `<details><summary><em>Triggered by @${actor}</em></summary>
 
 `;
     footer += "<br>\n\n";
     footer += "Infrastructure change details:\n";
     if (awsRegion) {
+      core2.info(`Adding AWS region to footer: ${awsRegion}`);
       footer += `- AWS Region: ${awsRegion}
 `;
+    } else {
+      core2.info("No AWS region provided, skipping region in footer");
     }
-    if (github.context.eventName === "pull_request") {
-      footer += `- Commit: \`${github.context.payload.pull_request.head.sha}\`
+    const commitSha = github.context.payload.pull_request?.head?.sha;
+    if (commitSha) {
+      core2.info(`Adding commit SHA to footer: ${commitSha}`);
+      footer += `- Commit: \`${commitSha}\`
 `;
+    } else {
+      core2.info("No commit SHA found in PR context, skipping commit in footer");
     }
     footer += "\n</details>";
+  } else {
+    core2.info("No actor found, skipping footer generation");
   }
   return `## ${trimmedHeader}
 
@@ -24229,14 +24253,17 @@ async function createOrUpdateComment({
   octokit,
   content
 }) {
+  core2.info(`Fetching existing PR comments for PR #${github.context.issue.number}`);
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     issue_number: github.context.issue.number
   });
+  core2.info(`Found ${comments.length} existing comment(s)`);
   const header = content.split("\n")[0];
   for (const comment of comments) {
     if (comment.body?.startsWith(header)) {
+      core2.info(`Updating existing comment (ID: ${comment.id}) with new diff`);
       await octokit.rest.issues.updateComment({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
@@ -24246,6 +24273,7 @@ async function createOrUpdateComment({
       return;
     }
   }
+  core2.info("Creating new PR comment with CDK diff");
   await octokit.rest.issues.createComment({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
@@ -24255,6 +24283,7 @@ async function createOrUpdateComment({
 }
 
 // src/cdk/difffile.ts
+var core3 = __toESM(require_core());
 function parseSingleStack(stackOutput, stackName) {
   const result = {
     stackName,
@@ -24381,11 +24410,15 @@ ${continuationText}`;
 function parseCdkDiff(diffOutput) {
   const stacks = [];
   const lines = diffOutput.split("\n");
+  core3.info(`Parsing CDK diff output (${lines.length} lines)`);
   const globalWarnings = [];
   for (const line of lines) {
     if (line.includes("[Warning at")) {
       globalWarnings.push(line.trim());
     }
+  }
+  if (globalWarnings.length > 0) {
+    core3.info(`Found ${globalWarnings.length} global warning(s)`);
   }
   const stackSections = [];
   let currentStackName = null;
@@ -24412,15 +24445,22 @@ function parseCdkDiff(diffOutput) {
       content: currentStackLines.join("\n")
     });
   }
+  core3.info(`Found ${stackSections.length} stack section(s) in diff output`);
   for (const section of stackSections) {
     const stackDiff = parseSingleStack(section.content, section.name);
     if (stacks.length === 0 && globalWarnings.length > 0) {
       stackDiff.warnings = globalWarnings;
     }
     if (!diffIsEmpty(stackDiff)) {
+      core3.info(
+        `Stack '${section.name}': ${stackDiff.iamStatementChanges.length} IAM, ${stackDiff.securityGroupChanges.length} SG, ${stackDiff.parameterChanges.length} parameter, ${stackDiff.resourceChanges.length} resource change(s)`
+      );
       stacks.push(stackDiff);
+    } else {
+      core3.info(`Stack '${section.name}': No changes detected`);
     }
   }
+  core3.info(`Parsed ${stacks.length} stack(s) with changes`);
   return stacks;
 }
 function diffIsEmpty(diff) {
@@ -24516,14 +24556,14 @@ function validateAwsRegion(region) {
 // src/cdk/index.ts
 async function run() {
   const inputs = {
-    token: core.getInput("token", { required: true }),
-    diffFile: core.getInput("diff-file", { required: true }),
-    header: core.getInput("header", { required: false }),
-    awsRegion: core.getInput("aws-region", { required: false })
+    token: core4.getInput("token", { required: true }),
+    diffFile: core4.getInput("diff-file", { required: true }),
+    header: core4.getInput("header", { required: false }),
+    awsRegion: core4.getInput("aws-region", { required: false })
   };
   validateAwsRegion(inputs.awsRegion || void 0);
   const octokit = github2.getOctokit(inputs.token);
-  const cdkDiff = await core.group("Parse CDK diff", async () => {
+  const cdkDiff = await core4.group("Parse CDK diff", async () => {
     let diffOutput;
     try {
       diffOutput = fs.readFileSync(inputs.diffFile, "utf-8");
@@ -24540,24 +24580,27 @@ async function run() {
       );
     }
   });
-  const renderedDiff = await core.group("Render CDK diff", async () => {
+  const renderedDiff = await core4.group("Render CDK diff", async () => {
     return renderCdkDiff(cdkDiff);
   });
-  const diffMarkdown = await core.group("Render diff markdown", async () => {
+  const diffMarkdown = await core4.group("Render diff markdown", async () => {
     const markdown = renderMarkdown({
       diffs: renderedDiff,
       header: inputs.header || void 0,
       awsRegion: inputs.awsRegion || void 0
     });
-    core.setOutput("markdown", markdown);
-    core.setOutput("empty", cdkDiffsAreEmpty(renderedDiff));
+    core4.setOutput("markdown", markdown);
+    core4.setOutput("empty", cdkDiffsAreEmpty(renderedDiff));
     return markdown;
   });
-  await core.group("Adding diff to step summary", async () => {
-    await core.summary.addRaw(diffMarkdown).write();
+  await core4.group("Adding diff to step summary", async () => {
+    const markdownLength = diffMarkdown.length;
+    core4.info(`Writing ${markdownLength} characters to GitHub Actions step summary`);
+    await core4.summary.addRaw(diffMarkdown).write();
+    core4.info("Successfully wrote diff to step summary");
   });
   if (!cdkDiffsAreEmpty(renderedDiff) && ["pull_request", "pull_request_target"].includes(github2.context.eventName)) {
-    await core.group("Render comment", () => {
+    await core4.group("Render comment", () => {
       return createOrUpdateComment({ octokit, content: diffMarkdown });
     });
   }
@@ -24568,34 +24611,34 @@ async function main() {
   } catch (error2) {
     if (error2 instanceof Error) {
       if (error2.message.includes("Invalid AWS region")) {
-        core.setFailed(error2.message);
+        core4.setFailed(error2.message);
         return;
       }
-      core.error(`Error Type: ${error2.constructor.name}`);
-      core.error(`Error Message: ${error2.message}`);
+      core4.error(`Error Type: ${error2.constructor.name}`);
+      core4.error(`Error Message: ${error2.message}`);
       if (error2.stack) {
-        core.debug(`Stack Trace: ${error2.stack}`);
+        core4.debug(`Stack Trace: ${error2.stack}`);
       }
       if (error2.message.includes("diff file") || error2.message.includes("readFileSync")) {
-        core.error("This appears to be a file reading error. Please verify:");
-        core.error("  - The diff file path is correct");
-        core.error("  - The file exists and is readable");
-        core.error("  - The CDK diff command ran successfully before this action");
+        core4.error("This appears to be a file reading error. Please verify:");
+        core4.error("  - The diff file path is correct");
+        core4.error("  - The file exists and is readable");
+        core4.error("  - The CDK diff command ran successfully before this action");
       } else if (error2.message.includes("parse") || error2.message.includes("CDK diff output")) {
-        core.error("This appears to be a parsing error. Please verify:");
-        core.error("  - The CDK diff output is valid");
-        core.error("  - The CDK version is compatible");
-        core.error("  - The diff file contains expected CDK diff format");
+        core4.error("This appears to be a parsing error. Please verify:");
+        core4.error("  - The CDK diff output is valid");
+        core4.error("  - The CDK version is compatible");
+        core4.error("  - The diff file contains expected CDK diff format");
       } else if (error2.message.includes("GitHub")) {
-        core.error("This appears to be a GitHub API error. Please verify:");
-        core.error("  - The GitHub token has the necessary permissions");
-        core.error("  - The repository exists and is accessible");
+        core4.error("This appears to be a GitHub API error. Please verify:");
+        core4.error("  - The GitHub token has the necessary permissions");
+        core4.error("  - The repository exists and is accessible");
       }
-      core.setFailed(error2.message);
+      core4.setFailed(error2.message);
     } else {
       const errorMessage = String(error2);
-      core.error(`Unknown error type: ${errorMessage}`);
-      core.setFailed(errorMessage);
+      core4.error(`Unknown error type: ${errorMessage}`);
+      core4.setFailed(errorMessage);
     }
   }
 }
