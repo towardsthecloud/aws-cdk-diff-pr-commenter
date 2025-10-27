@@ -76,12 +76,12 @@ jobs:
 
       - name: CDK Diff
         run: |
-          npx cdk diff --all --no-color > cdk-diff.txt 2>&1 || true
+          npx cdk diff --all --no-color > cdk-diff-output.txt 2>&1 || true
 
       - name: Post CDK Diff Comment
         uses: towardsthecloud/aws-cdk-diff-pr-commenter@v1
         with:
-          diff-file: cdk-diff.txt
+          diff-file: cdk-diff-output.txt
           aws-region: ${{ env.AWS_REGION }}
 ```
 
@@ -102,7 +102,6 @@ on:
       aws-region:
         description: 'AWS Region where resources are deployed'
         type: string
-        required: false
 
 jobs:
   post-comment:
@@ -117,9 +116,9 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download CDK Diff
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
-          name: cdk-diff
+          name: cdk-diff-artifact
 
       - name: Post CDK Diff Comment
         uses: towardsthecloud/aws-cdk-diff-pr-commenter@v1
@@ -171,20 +170,20 @@ jobs:
 
       - name: CDK Diff
         run: |
-          npx cdk diff --all --no-color > cdk-diff.txt 2>&1 || true
+          npx cdk diff --all --no-color > cdk-diff-output.txt 2>&1 || true
 
       - name: Upload CDK Diff
         uses: actions/upload-artifact@v5
         with:
-          name: cdk-diff
-          path: cdk-diff.txt
+          name: cdk-diff-artifact
+          path: cdk-diff-output.txt
 
   post-cdk-diff-comment:
     name: Post CDK Diff Comment
     needs: generate-cdk-diff
     uses: ./.github/workflows/post-cdk-diff-comment.yml
     with:
-      diff-file: cdk-diff.txt
+      diff-file: cdk-diff-output.txt
       aws-region: us-east-1
 ```
 
