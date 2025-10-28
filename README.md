@@ -187,6 +187,10 @@ jobs:
       aws-region: us-east-1
 ```
 
+### Try It Out
+
+Want to test this action? Check out the [AWS CDK Starter Kit](https://github.com/towardsthecloud/aws-cdk-starter-kit) we created. It's a production-ready CDK template with this workflow already configured.
+
 ## Permissions
 
 This action requires the following permissions:
