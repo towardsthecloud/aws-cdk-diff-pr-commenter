@@ -15,25 +15,24 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 
 <!-- TIP-LIST:START -->
 > [!TIP]
-> **Want even better PR insights? See exactly how your infrastructure changes impact AWS costs.**
+> **Now you can see _what's_ changing in your infrastructure. But what about _how much it will cost_?**
 >
-> [CloudBurn](https://cloudburn.io) is a GitHub App that automatically analyzes your CDK diffs and posts cost impact comments in your PRs. No more discovering expensive decisions weeks later on your AWS bill when changes require production downtime and cross-team coordination.
+> We developed a GitHub App called [CloudBurn](https://cloudburn.io) that automatically analyzes your CDK diffs and adds cost impact analysis right in your PR comments. Catch expensive decisions before they hit production, not weeks later on your AWS bill.
 >
-> <a href="https://github.com/marketplace/cloudburn-io"><img alt="Install CloudBurn from GitHub Marketplace" src="https://img.shields.io/badge/Install%20CloudBurn-GitHub%20Marketplace-brightgreen.svg?style=for-the-badge&logo=github"/></a>
+> <a href="https://github.com/apps/cloudburn-io"><img alt="Install CloudBurn from GitHub Marketplace" src="https://img.shields.io/badge/Install%20CloudBurn-GitHub%20Marketplace-brightgreen.svg?style=for-the-badge&logo=github"/></a>
 >
 > <details>
-> <summary>💰 <strong>How it works</strong></summary>
+> <summary>💰 <strong>Two-minute setup</strong></summary>
 > <br/>
 >
-> 1. **Keep using this action** – It posts your CDK diff to PRs
-> 2. **Install CloudBurn** – [One-click install from GitHub Marketplace](https://github.com/marketplace/cloudburn-io)
-> 3. **Get automatic cost analysis** – CloudBurn analyzes the diff and adds cost impact comments to every PR
+> 1. **[Install CloudBurn](https://github.com/apps/cloudburn-io)** on the same repository where you use this action
+> 2. **Open a PR** – This action posts the CDK diff, then CloudBurn reads it and adds a separate comment with cost analysis
 >
-> **What you get:**
-> - Automatic cost analysis on every PR with infrastructure changes, showing monthly cost deltas
-> - Real-time AWS pricing based on your infrastructure's region using live AWS Pricing API data
-> - Detailed breakdowns showing old vs. new monthly costs per resource with usage types and pricing details
-> - Free Community plan: 1 repository + unlimited users (perfect for individual developers and open-source projects)
+> **What's included:**
+> - Monthly cost deltas showing exactly how much your changes will increase or decrease your AWS bill
+> - Real-time pricing from AWS Pricing API based on your infrastructure's region
+> - Per-resource cost breakdowns with old vs. new monthly costs
+> - Free forever for 1 repository with unlimited users
 >
 > </details>
 <!-- TIP-LIST:END -->
