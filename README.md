@@ -252,13 +252,13 @@ When the file is present, this action appends it to the diff comment inside a co
 
 Repositories without the file get the same comment as before. A file over 64 KB or with invalid JSON isn't embedded; CloudBurn reports it as a configuration error instead.
 
-The [usage assumptions schema reference](https://cloudburn.io/docs/github-app/usage-assumptions) covers the full schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
+The [usage assumptions schema reference](https://cloudburn.io/docs/cloud/github-app/usage-assumptions) covers the full schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
 
 ## Documentation
 
 For complete documentation, including advanced configuration options and integration with CloudBurn for cost analysis, visit:
 
-[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/github-app)
+[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/cloud/github-app)
 
 ## Author
 
