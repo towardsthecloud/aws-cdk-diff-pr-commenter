@@ -229,6 +229,31 @@ permissions:
   id-token: write       # Required for AWS OIDC authentication
 ```
 
+## Usage-based cost assumptions
+
+CloudBurn prices S3, SQS, and SNS from monthly usage you declare, since a diff shows that a bucket or queue exists but never how much traffic it will carry.
+
+Put those numbers in `.cloudburn/usage-assumptions.json` at the root of your repository:
+
+```json
+{
+  "schemaVersion": 2,
+  "resources": {
+    "StorageStack/ReportsBucket": {
+      "s3": { "storage": { "standardGbMonth": 500 } }
+    }
+  }
+}
+```
+
+Keys under `resources` are construct paths: the stack name followed by the path to the construct.
+
+When the file is present, this action appends it to the diff comment inside a collapsed **CloudBurn usage assumptions** block, together with the version of the file at the pull request base commit. CloudBurn reads both from the comment and never reads your repository, so editing only the assumptions still produces a cost delta.
+
+Repositories without the file get the same comment as before. A file over 64 KB or with invalid JSON isn't embedded; CloudBurn reports it as a configuration error instead.
+
+The [CloudBurn documentation](https://cloudburn.io/docs) covers the schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
+
 ## Documentation
 
 For complete documentation, including advanced configuration options and integration with CloudBurn for cost analysis, visit:
