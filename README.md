@@ -29,6 +29,7 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 > 2. **Open a PR** – This action posts the CDK diff, then CloudBurn reads it and adds a separate comment with cost analysis
 >
 > **What's included:**
+>
 > - Monthly cost deltas showing exactly how much your changes will increase or decrease your AWS bill
 > - Real-time pricing from AWS Pricing API based on your infrastructure's region
 > - Per-resource cost breakdowns with old vs. new monthly costs
@@ -36,7 +37,6 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 >
 > </details>
 <!-- TIP-LIST:END -->
-
 
 ## Inputs
 
@@ -252,7 +252,7 @@ When the file is present, this action appends it to the diff comment inside a co
 
 Repositories without the file get the same comment as before. A file over 64 KB or with invalid JSON isn't embedded; CloudBurn reports it as a configuration error instead.
 
-The [CloudBurn documentation](https://cloudburn.io/docs) covers the schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
+The [usage assumptions schema reference](https://cloudburn.io/docs/github-app/usage-assumptions) covers the full schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
 
 ## Documentation
 
