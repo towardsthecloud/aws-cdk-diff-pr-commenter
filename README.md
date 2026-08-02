@@ -258,7 +258,7 @@ The [usage assumptions schema reference](https://cloudburn.io/docs/github-app/us
 
 For complete documentation, including advanced configuration options and integration with CloudBurn for cost analysis, visit:
 
-[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/aws-cdk-diff-github-action)
+[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/github-app)
 
 ## Author
 
