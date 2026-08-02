@@ -29,6 +29,7 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 > 2. **Open a PR** – This action posts the CDK diff, then CloudBurn reads it and adds a separate comment with cost analysis
 >
 > **What's included:**
+>
 > - Monthly cost deltas showing exactly how much your changes will increase or decrease your AWS bill
 > - Real-time pricing from AWS Pricing API based on your infrastructure's region
 > - Per-resource cost breakdowns with old vs. new monthly costs
@@ -36,7 +37,6 @@ A GitHub Action that posts the output of `cdk diff` as a comment on Pull Request
 >
 > </details>
 <!-- TIP-LIST:END -->
-
 
 ## Inputs
 
@@ -229,11 +229,36 @@ permissions:
   id-token: write       # Required for AWS OIDC authentication
 ```
 
+## Usage-based cost assumptions
+
+CloudBurn prices S3, SQS, and SNS from monthly usage you declare, since a diff shows that a bucket or queue exists but never how much traffic it will carry.
+
+Put those numbers in `.cloudburn/usage-assumptions.json` at the root of your repository:
+
+```json
+{
+  "schemaVersion": 2,
+  "resources": {
+    "StorageStack/ReportsBucket": {
+      "s3": { "storage": { "standardGbMonth": 500 } }
+    }
+  }
+}
+```
+
+Keys under `resources` are construct paths: the stack name followed by the path to the construct.
+
+When the file is present, this action appends it to the diff comment inside a collapsed **CloudBurn usage assumptions** block, together with the version of the file at the pull request base commit. CloudBurn reads both from the comment and never reads your repository, so editing only the assumptions still produces a cost delta.
+
+Repositories without the file get the same comment as before. A file over 64 KB or with invalid JSON isn't embedded; CloudBurn reports it as a configuration error instead.
+
+The [usage assumptions schema reference](https://cloudburn.io/docs/cloud/github-app/usage-assumptions) covers the full schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
+
 ## Documentation
 
 For complete documentation, including advanced configuration options and integration with CloudBurn for cost analysis, visit:
 
-[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/aws-cdk-diff-github-action)
+[Full Documentation on CloudBurn.io](https://cloudburn.io/docs/cloud/github-app)
 
 ## Author
 
