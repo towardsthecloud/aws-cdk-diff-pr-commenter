@@ -6,8 +6,16 @@ branding:
   color: orange
 inputs:
   diff-file:
-    description: Path to the CDK diff output file to post as comment in the Pull Request.
-    required: true
+    description: Path to the CDK diff output file. Required when source-type is cdk.
+  source-type:
+    description: Structured template source type. Either cdk or cloudformation.
+    default: cdk
+  before-template:
+    description: Path to the base CloudFormation template or CDK cloud assembly.
+  after-template:
+    description: Path to the head CloudFormation template or CDK cloud assembly.
+  stack-name:
+    description: Stable stack name when before-template and after-template are individual template files.
   token:
     description: The GitHub or PAT token to use for posting comments to Pull Requests.
     default: ${{ github.token }}
@@ -20,6 +28,8 @@ outputs:
     description: The raw markdown output of the `cdk diff` command
   empty:
     description: Whether the `cdk diff` contains any changes or not
+  resource-changes:
+    description: The validated CloudBurn Resource Change Set JSON when one was produced
 runs:
   using: node24
-  main: src/index.js
+  main: build/index-cdk.js
