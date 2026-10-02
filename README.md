@@ -248,9 +248,9 @@ Put those numbers in `.cloudburn/usage-assumptions.json` at the root of your rep
 
 Keys under `resources` are construct paths: the stack name followed by the path to the construct.
 
-When the file is present, this action appends it to the diff comment inside a collapsed **CloudBurn usage assumptions** block, together with the version of the file at the pull request base commit. CloudBurn reads both from the comment and never reads your repository, so editing only the assumptions still produces a cost delta.
+This action reads the current file from the GitHub Actions workspace, so check out the pull request head commit before running it. When the file is present, the action appends it to the diff comment inside a collapsed **CloudBurn usage assumptions** block and fetches the previous version at the pull request base commit. CloudBurn reads these snapshots from the comment, so editing only the assumptions can produce a cost delta.
 
-Repositories without the file get the same comment as before. A file over 64 KB or with invalid JSON isn't embedded; CloudBurn reports it as a configuration error instead.
+If the current file is missing or deleted from the workspace, the action skips both snapshots. Each snapshot can contain at most 65,536 UTF-8 bytes. A snapshot over that limit or containing invalid JSON is replaced with an explicit usage-assumptions error block. If the previous file cannot be read at the base commit, the action adds a previous-snapshot error block; a file absent at the base commit is treated as newly added.
 
 The [usage assumptions schema reference](https://cloudburn.io/docs/platform/github-app/usage-assumptions) covers the full schema: supported fields per service, repository-wide and per-resource-type defaults, account usage for graduated pricing tiers, and free-tier handling.
 
