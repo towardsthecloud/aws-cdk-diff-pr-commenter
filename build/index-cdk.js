@@ -39300,7 +39300,6 @@ var TERRAFORM_COMMON_PRICING_INPUTS = Object.freeze({
   instance_definitions: "InstanceDefinitions",
   instance_type: "InstanceType",
   instance_type_configs: "InstanceTypeConfigs",
-  instance_type_specifications: "InstanceTypeSpecifications",
   instance_types: "InstanceTypes",
   instances: "Instances",
   ami: "MachineImage",
@@ -39389,6 +39388,7 @@ var TERRAFORM_COMMON_PRICING_INPUTS = Object.freeze({
 var TERRAFORM_RESOURCE_PRICING_INPUTS = Object.freeze({
   aws_ebs_volume: { type: "VolumeType" },
   aws_lb: { load_balancer_type: "Type" },
+  aws_alb: { load_balancer_type: "Type" },
   aws_vpn_connection: { type: "Type" }
 });
 var SPECIALIZED_PRICING_INPUT_NAMES = [
@@ -39398,7 +39398,8 @@ var SPECIALIZED_PRICING_INPUT_NAMES = [
   "MemorySizeInMB",
   "MaxConcurrency",
   "ProvisionedConcurrency",
-  "ResourceSpec"
+  "ResourceSpec",
+  "StorageType"
 ];
 var RESOURCE_CHANGE_PRICING_INPUT_NAMES = /* @__PURE__ */ new Set([
   ...Object.values(TEMPLATE_PRICING_INPUTS),
@@ -39440,6 +39441,7 @@ var TYPE_ONLY_TERRAFORM_PRICING_RESOURCES = /* @__PURE__ */ new Set([
   "aws_vpn_connection",
   "aws_globalaccelerator_accelerator",
   "aws_lb",
+  "aws_alb",
   "aws_elb",
   "aws_vpc_endpoint",
   "aws_ec2_transit_gateway_vpc_attachment",
@@ -39756,6 +39758,7 @@ var UNSUPPORTED_PRICE_DRIVER_FIELDS = Object.freeze({
   aws_secretsmanager_secret: ["replica"],
   "AWS::ElasticLoadBalancingV2::LoadBalancer": ["MinimumLoadBalancerCapacity", "Scheme", "IpAddressType"],
   aws_lb: ["minimum_load_balancer_capacity", "internal", "ip_address_type"],
+  aws_alb: ["minimum_load_balancer_capacity", "internal", "ip_address_type"],
   "AWS::Batch::ComputeEnvironment": ["ComputeResources"],
   aws_batch_compute_environment: ["compute_resources"],
   "AWS::KMS::Key": ["KeySpec", "KeyUsage"],
@@ -39863,10 +39866,19 @@ function projectEc2FleetTargetCapacity(projections, value, source, sourcePath) {
     setProjection(projections, canonical, source, specification[key], [...sourcePath, key]);
   }
 }
+var AURORA_ENGINES = /* @__PURE__ */ new Set(["aurora", "aurora-mysql", "aurora-postgresql"]);
+var AURORA_STANDARD_STORAGE_TYPE = "aurora";
+function isAuroraEngine(engine) {
+  return typeof engine === "string" && AURORA_ENGINES.has(engine);
+}
+function templateClusterStorageType(properties, newlyAdded) {
+  if (properties.StorageType !== void 0) return properties.StorageType;
+  return newlyAdded && isAuroraEngine(properties.Engine) ? AURORA_STANDARD_STORAGE_TYPE : void 0;
+}
 function supportsTemplateProjection(resourceType) {
   return resourceType.startsWith("AWS::") && resourceType !== "AWS::CloudFormation::CustomResource";
 }
-function projectTemplatePricingInputs(resourceType, properties) {
+function projectTemplatePricingInputs(resourceType, properties, options = {}) {
   if (!supportsTemplateProjection(resourceType)) return [];
   const projections = directProjections(properties, TEMPLATE_PRICING_INPUTS);
   if ([
@@ -40092,12 +40104,23 @@ function projectTemplatePricingInputs(resourceType, properties) {
     ]);
   }
   if (resourceType === "AWS::RDS::DBCluster") {
+    projections.delete("VolumeType");
+    setProjection(
+      projections,
+      "StorageType",
+      "StorageType",
+      templateClusterStorageType(properties, options.newlyAdded)
+    );
     projectServerlessScalingConfiguration(
       projections,
       properties.ServerlessV2ScalingConfiguration,
       "ServerlessV2ScalingConfiguration",
       ["ServerlessV2ScalingConfiguration"]
     );
+  }
+  if (resourceType === "AWS::RDS::DBInstance" && properties.DBClusterIdentifier !== void 0) {
+    projections.delete("VolumeType");
+    setProjection(projections, "StorageType", "DBClusterIdentifier", options.clusterStorageType);
   }
   if (resourceType === "AWS::Neptune::DBCluster") {
     projectServerlessScalingConfiguration(
@@ -40587,7 +40610,21 @@ function nestedParameterBindingSnapshots(bindings, template) {
     })
   );
 }
-function pricingSide(resource, template) {
+function templateResources(template) {
+  return template?.Resources ?? {};
+}
+function isNewDbCluster(logicalId, previousTemplate) {
+  return previousTemplate !== void 0 && templateResources(previousTemplate.template)[logicalId]?.Type !== "AWS::RDS::DBCluster";
+}
+function referencedClusterStorageType(properties, template, previousTemplate) {
+  const reference = properties.DBClusterIdentifier?.Ref;
+  if (typeof reference !== "string") return void 0;
+  const cluster = templateResources(template)[reference];
+  if (cluster?.Type !== "AWS::RDS::DBCluster" || cluster.Condition !== void 0) return void 0;
+  const storageType = templateClusterStorageType(cluster.Properties ?? {}, isNewDbCluster(reference, previousTemplate));
+  return typeof storageType === "string" && !containsUnresolvedTemplateExpression(storageType) ? storageType : void 0;
+}
+function pricingSide(resource, template, { logicalId, previousTemplate }) {
   if (template?.Transform !== void 0) {
     return { state: "unknown", reason: "unresolved-expression" };
   }
@@ -40611,9 +40648,14 @@ function pricingSide(resource, template) {
   }
   const inputs = {};
   const unknowns = [];
+  const options = {
+    newlyAdded: isNewDbCluster(logicalId, previousTemplate),
+    clusterStorageType: referencedClusterStorageType(resource.Properties ?? {}, template, previousTemplate)
+  };
   for (const { name: pricingInputName, value } of projectTemplatePricingInputs(
     resource.Type,
-    resource.Properties ?? {}
+    resource.Properties ?? {},
+    options
   )) {
     if (containsUnresolvedTemplateExpression(value)) {
       unknowns.push({ path: pricingInputName, reason: "unresolved-expression" });
@@ -41008,7 +41050,7 @@ function buildParsedTemplateResourceChangeDraft(options, parsedChanges) {
         },
         change: "add",
         old: { state: "absent" },
-        new: pricingSide(newResource, afterTemplate)
+        new: pricingSide(newResource, afterTemplate, { logicalId, previousTemplate: { template: beforeTemplate } })
       });
       continue;
     }
@@ -41024,7 +41066,7 @@ function buildParsedTemplateResourceChangeDraft(options, parsedChanges) {
             resourceType: oldResource.Type
           },
           change: "delete",
-          old: snapshotsOnRemoval || replacementSnapshots ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(oldResource, beforeTemplate),
+          old: snapshotsOnRemoval || replacementSnapshots ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(oldResource, beforeTemplate, { logicalId: oldIdentityLogicalId }),
           new: { state: "absent" }
         });
       }
@@ -41036,7 +41078,7 @@ function buildParsedTemplateResourceChangeDraft(options, parsedChanges) {
         },
         change: "add",
         old: { state: "absent" },
-        new: pricingSide(newResource, afterTemplate)
+        new: pricingSide(newResource, afterTemplate, { logicalId, previousTemplate: { template: beforeTemplate } })
       });
       continue;
     }
@@ -41051,8 +41093,8 @@ function buildParsedTemplateResourceChangeDraft(options, parsedChanges) {
         resourceType: resource.Type
       },
       change,
-      old: oldResource ? replacementLifecycleUnknown || snapshotsOnRemoval ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(oldResource, beforeTemplate) : { state: "absent" },
-      new: newResource ? replacementLifecycleUnknown ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(newResource, afterTemplate) : { state: "absent" }
+      old: oldResource ? replacementLifecycleUnknown || snapshotsOnRemoval ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(oldResource, beforeTemplate, { logicalId: oldLogicalId ?? logicalId }) : { state: "absent" },
+      new: newResource ? replacementLifecycleUnknown ? { state: "unknown", reason: "not-in-artifact" } : pricingSide(newResource, afterTemplate, { logicalId, previousTemplate: { template: beforeTemplate } }) : { state: "absent" }
     });
   }
   return {
