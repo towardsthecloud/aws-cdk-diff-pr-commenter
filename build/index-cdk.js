@@ -2725,9 +2725,9 @@ var require_multipart = __commonJS({
           return skipPart(part);
         }
         if (curField) {
-          const field = curField;
-          field.emit("end");
-          field.removeAllListeners("end");
+          const field2 = curField;
+          field2.emit("end");
+          field2.removeAllListeners("end");
         }
         part.on("header", function(header) {
           let contype;
@@ -24022,22 +24022,23 @@ function cdkDiffsAreEmpty(diffs) {
 }
 
 // src/cdk/comment.ts
+function field(label, value) {
+  return `${label}: ${value.split("\n").join(`
+${" ".repeat(label.length + 2)}`)}
+`;
+}
 function renderIamStatements(statements) {
   let result = "";
   for (const stmt of statements) {
     result += "\n\n<details><summary>";
-    result += `<code>${stmt.resource}</code>`;
+    result += `<code>${stmt.resource.split("\n").join(", ")}</code>`;
     result += "</summary>\n\n";
     result += "```\n";
-    result += `Effect: ${stmt.effect}
-`;
-    result += `Action: ${stmt.action}
-`;
-    result += `Principal: ${stmt.principal}
-`;
+    result += field("Effect", stmt.effect);
+    result += field("Action", stmt.action);
+    result += field("Principal", stmt.principal);
     if (stmt.condition) {
-      result += `Condition: ${stmt.condition}
-`;
+      result += field("Condition", stmt.condition);
     }
     result += "```\n\n</details>";
   }
@@ -24047,15 +24048,12 @@ function renderSecurityGroups(groups) {
   let result = "";
   for (const sg of groups) {
     result += "\n\n<details><summary>";
-    result += `<code>${sg.group}</code>`;
+    result += `<code>${sg.group.split("\n").join(", ")}</code>`;
     result += "</summary>\n\n";
     result += "```\n";
-    result += `Direction: ${sg.direction}
-`;
-    result += `Protocol: ${sg.protocol}
-`;
-    result += `Peer: ${sg.peer}
-`;
+    result += field("Direction", sg.direction);
+    result += field("Protocol", sg.protocol);
+    result += field("Peer", sg.peer);
     result += "```\n\n</details>";
   }
   return result;
@@ -24076,11 +24074,9 @@ function renderParameters(params) {
 function renderResources(resources) {
   let result = "";
   for (const resource of resources) {
-    result += `
+    result += resource.constructPath ? `
+- **${resource.resourceType}**: \`${resource.constructPath}\` (\`${resource.logicalId}\`)` : `
 - **${resource.resourceType}**: \`${resource.logicalId}\``;
-    if (resource.physicalId) {
-      result += ` (\`${resource.physicalId}\`)`;
-    }
   }
   return result;
 }
@@ -24285,6 +24281,31 @@ async function createOrUpdateComment({
 
 // src/cdk/difffile.ts
 var core3 = __toESM(require_core());
+var changeTypeOf = (symbol2) => symbol2 === "+" ? "add" : symbol2 === "-" ? "remove" : "update";
+function parseTableRows(lines) {
+  const rows = [];
+  let current;
+  for (const line of lines) {
+    const start = line.indexOf("\u2502");
+    if (start < 0) {
+      current = void 0;
+      continue;
+    }
+    const [symbol2, ...cells] = line.slice(start).split("\u2502").slice(1, -1).map((cell) => cell.replace(/^ /, "").trimEnd());
+    if (["+", "-", "~"].includes(symbol2)) {
+      current = { changeType: changeTypeOf(symbol2), cells };
+      rows.push(current);
+    } else if (current && symbol2 === "") {
+      const row = current;
+      cells.forEach((cell, index) => {
+        if (cell) row.cells[index] = row.cells[index] ? `${row.cells[index]}
+${cell}` : cell;
+      });
+    }
+  }
+  return rows;
+}
+var RESOURCE_LINE = /^\[([+\-~])\]\s+(AWS::\S+)\s+(.+?)(?:\s+(?:replace|may be replaced|destroy|orphan|import))?(?:\s+\(OR move .*\))?$/;
 function parseSingleStack(stackOutput, stackName) {
   const result = {
     stackName,
@@ -24296,23 +24317,29 @@ function parseSingleStack(stackOutput, stackName) {
     warnings: []
   };
   const lines = stackOutput.split("\n");
+  const iamLines = [];
+  const securityGroupLines = [];
   let inIamSection = false;
   let inSecurityGroupSection = false;
   let inParametersSection = false;
   let inResourcesSection = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (const line of lines) {
+    const heading = line.includes("\u2502") ? "" : line;
     if (line.includes("There were no differences") || line.includes("No changes detected")) {
       break;
     }
-    if (line.includes("IAM Statement Changes")) {
+    if (heading.includes("IAM Statement Changes")) {
       inIamSection = true;
       inSecurityGroupSection = false;
       inParametersSection = false;
       inResourcesSection = false;
       continue;
     }
-    if (line.includes("Security Group Changes")) {
+    if (heading.includes("IAM Policy Changes")) {
+      inIamSection = false;
+      continue;
+    }
+    if (heading.includes("Security Group Changes")) {
       inIamSection = false;
       inSecurityGroupSection = true;
       inParametersSection = false;
@@ -24333,84 +24360,43 @@ function parseSingleStack(stackOutput, stackName) {
       inResourcesSection = true;
       continue;
     }
-    if (inIamSection && line.includes("\u2502")) {
-      const match = line.match(/│\s*([+\-~])\s*│\s*([^│]+)│\s*([^│]+)│\s*([^│]+)│\s*([^│]+)│\s*([^│]*)│/);
-      if (match) {
-        const changeSymbol = match[1].trim();
-        const changeType = changeSymbol === "+" ? "add" : changeSymbol === "-" ? "remove" : "update";
-        let conditionText = match[6].trim();
-        let j = i + 1;
-        while (j < lines.length && lines[j].includes("\u2502")) {
-          const continuationMatch = lines[j].match(/│\s*│\s*│\s*│\s*│\s*│\s*([^│]*)│/);
-          if (continuationMatch) {
-            const continuationText = continuationMatch[1].trim();
-            if (continuationText) {
-              conditionText += `
-${continuationText}`;
-              j++;
-            } else {
-              break;
-            }
-          } else {
-            break;
-          }
-        }
-        result.iamStatementChanges.push({
-          resource: match[2].trim(),
-          effect: match[3].trim(),
-          action: match[4].trim(),
-          principal: match[5].trim(),
-          condition: conditionText,
-          changeType
-        });
-        i = j - 1;
-      }
-    }
-    if (inSecurityGroupSection && line.includes("\u2502")) {
-      const match = line.match(/│\s*([+\-~])\s*│\s*([^│]+)│\s*([^│]+)│\s*([^│]+)│\s*([^│]+)│/);
-      if (match) {
-        const changeSymbol = match[1].trim();
-        const changeType = changeSymbol === "+" ? "add" : changeSymbol === "-" ? "remove" : "update";
-        result.securityGroupChanges.push({
-          group: match[2].trim(),
-          direction: match[3].trim(),
-          protocol: match[4].trim(),
-          peer: match[5].trim(),
-          changeType
-        });
-      }
-    }
+    if (inIamSection) iamLines.push(line);
+    if (inSecurityGroupSection) securityGroupLines.push(line);
     if (inParametersSection && line.match(/^\[([+\-~])\]\s*Parameter\s+(.+)/)) {
       const match = line.match(/^\[([+\-~])\]\s*Parameter\s+(.+?)(\s+.+)?:\s*(.+)/);
       if (match) {
-        const changeSymbol = match[1];
-        const changeType = changeSymbol === "+" ? "add" : changeSymbol === "-" ? "remove" : "update";
         result.parameterChanges.push({
           name: match[2].trim(),
           value: match[4] || "",
-          changeType
+          changeType: changeTypeOf(match[1])
         });
       }
     }
-    if (inResourcesSection && line.match(/^\[([+\-~])\]\s+(AWS::[^\s]+)\s+(.+)/)) {
-      const match = line.match(/^\[([+\-~])\]\s+(AWS::[^\s]+)\s+(\S+)\s*(\S*)/);
-      if (match) {
-        const changeSymbol = match[1];
-        const changeType = changeSymbol === "+" ? "add" : changeSymbol === "-" ? "remove" : "update";
-        result.resourceChanges.push({
-          resourceType: match[2].trim(),
-          logicalId: match[3].trim(),
-          physicalId: match[4] || void 0,
-          changeType
-        });
-      }
+    const resource = inResourcesSection ? line.trimEnd().match(RESOURCE_LINE) : null;
+    if (resource) {
+      const identifiers = resource[3].split(" ");
+      const logicalId = identifiers.pop() ?? "";
+      result.resourceChanges.push({
+        resourceType: resource[2],
+        logicalId,
+        constructPath: identifiers.join(" ") || void 0,
+        changeType: changeTypeOf(resource[1])
+      });
     }
+  }
+  for (const { changeType, cells } of parseTableRows(iamLines)) {
+    const [resource = "", effect = "", action = "", principal = "", condition = ""] = cells;
+    result.iamStatementChanges.push({ resource, effect, action, principal, condition, changeType });
+  }
+  for (const { changeType, cells } of parseTableRows(securityGroupLines)) {
+    const [group2 = "", direction = "", protocol = "", peer = ""] = cells;
+    result.securityGroupChanges.push({ group: group2, direction, protocol, peer, changeType });
   }
   return result;
 }
 function parseCdkDiff(diffOutput) {
   const stacks = [];
-  const lines = diffOutput.split("\n");
+  const lines = diffOutput.split(/\r?\n/);
   core3.info(`Parsing CDK diff output (${lines.length} lines)`);
   const globalWarnings = [];
   for (const line of lines) {
@@ -27500,10 +27486,10 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     const shape = def.shape;
     const propValues = {};
     for (const key in shape) {
-      const field = shape[key]._zod;
-      if (field.values) {
+      const field2 = shape[key]._zod;
+      if (field2.values) {
         propValues[key] ?? (propValues[key] = /* @__PURE__ */ new Set());
-        for (const v of field.values)
+        for (const v of field2.values)
           propValues[key].add(v);
       }
     }
@@ -39776,7 +39762,7 @@ function hasUnsupportedPricingTopology(resourceType, values) {
     const object2 = record2(value);
     return object2 ? Object.keys(object2).length > 0 : value !== void 0 && value !== null;
   };
-  if ((UNSUPPORTED_PRICE_DRIVER_FIELDS[resourceType] ?? []).some((field) => hasTopology(values[field]))) return true;
+  if ((UNSUPPORTED_PRICE_DRIVER_FIELDS[resourceType] ?? []).some((field2) => hasTopology(values[field2]))) return true;
   if (resourceType === "AWS::EC2::Instance") return hasTopology(values.BlockDeviceMappings);
   if (resourceType === "aws_instance") {
     return hasTopology(values.root_block_device) || hasTopology(values.ebs_block_device);
@@ -39847,7 +39833,7 @@ function projectServerlessScalingConfiguration(projections, value, source, sourc
   const minCapacity = configuration.MinCapacity ?? configuration.min_capacity;
   const maxCapacity = configuration.MaxCapacity ?? configuration.max_capacity;
   const canonical = Object.fromEntries(
-    Object.entries({ MinCapacity: minCapacity, MaxCapacity: maxCapacity }).filter(([, field]) => field !== void 0)
+    Object.entries({ MinCapacity: minCapacity, MaxCapacity: maxCapacity }).filter(([, field2]) => field2 !== void 0)
   );
   if (Object.keys(canonical).length > 0) {
     setProjection(projections, "ScalingConfiguration", source, canonical, sourcePath);
@@ -40355,7 +40341,8 @@ function buildCdkResourceChangeSetFromDiff(options) {
       const unknownSide = { state: "unknown", reason: "template-unavailable" };
       changes.push({
         identity: {
-          address: `${stackName}/${resource.logicalId}`,
+          // Template-based change sets address CDK resources by construct path too
+          address: `${stackName}/${resource.constructPath ?? resource.logicalId}`,
           logicalId: resource.logicalId,
           resourceType: resource.resourceType
         },
