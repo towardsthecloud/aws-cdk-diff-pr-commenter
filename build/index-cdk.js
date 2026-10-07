@@ -185,7 +185,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.prepareKeyValueMessage = exports2.issueFileCommand = void 0;
     var crypto = __importStar(require("crypto"));
-    var fs4 = __importStar(require("fs"));
+    var fs3 = __importStar(require("fs"));
     var os = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -193,10 +193,10 @@ var require_file_command = __commonJS({
       if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
       }
-      if (!fs4.existsSync(filePath)) {
+      if (!fs3.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs4.appendFileSync(filePath, `${(0, utils_1.toCommandValue)(message)}${os.EOL}`, {
+      fs3.appendFileSync(filePath, `${(0, utils_1.toCommandValue)(message)}${os.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -1001,14 +1001,14 @@ var require_util = __commonJS({
         }
         const port = url2.port != null ? url2.port : url2.protocol === "https:" ? 443 : 80;
         let origin = url2.origin != null ? url2.origin : `${url2.protocol}//${url2.hostname}:${port}`;
-        let path3 = url2.path != null ? url2.path : `${url2.pathname || ""}${url2.search || ""}`;
+        let path2 = url2.path != null ? url2.path : `${url2.pathname || ""}${url2.search || ""}`;
         if (origin.endsWith("/")) {
           origin = origin.substring(0, origin.length - 1);
         }
-        if (path3 && !path3.startsWith("/")) {
-          path3 = `/${path3}`;
+        if (path2 && !path2.startsWith("/")) {
+          path2 = `/${path2}`;
         }
-        url2 = new URL(origin + path3);
+        url2 = new URL(origin + path2);
       }
       return url2;
     }
@@ -2622,20 +2622,20 @@ var require_parseParams = __commonJS({
 var require_basename = __commonJS({
   "node_modules/.pnpm/@fastify+busboy@2.1.1/node_modules/@fastify/busboy/lib/utils/basename.js"(exports2, module2) {
     "use strict";
-    module2.exports = function basename2(path3) {
-      if (typeof path3 !== "string") {
+    module2.exports = function basename2(path2) {
+      if (typeof path2 !== "string") {
         return "";
       }
-      for (var i = path3.length - 1; i >= 0; --i) {
-        switch (path3.charCodeAt(i)) {
+      for (var i = path2.length - 1; i >= 0; --i) {
+        switch (path2.charCodeAt(i)) {
           case 47:
           // '/'
           case 92:
-            path3 = path3.slice(i + 1);
-            return path3 === ".." || path3 === "." ? "" : path3;
+            path2 = path2.slice(i + 1);
+            return path2 === ".." || path2 === "." ? "" : path2;
         }
       }
-      return path3 === ".." || path3 === "." ? "" : path3;
+      return path2 === ".." || path2 === "." ? "" : path2;
     };
   }
 });
@@ -4271,18 +4271,18 @@ var require_webidl = __commonJS({
     webidl.errors.exception = function(message) {
       return new TypeError(`${message.header}: ${message.message}`);
     };
-    webidl.errors.conversionFailed = function(context4) {
-      const plural = context4.types.length === 1 ? "" : " one of";
-      const message = `${context4.argument} could not be converted to${plural}: ${context4.types.join(", ")}.`;
+    webidl.errors.conversionFailed = function(context3) {
+      const plural = context3.types.length === 1 ? "" : " one of";
+      const message = `${context3.argument} could not be converted to${plural}: ${context3.types.join(", ")}.`;
       return webidl.errors.exception({
-        header: context4.prefix,
+        header: context3.prefix,
         message
       });
     };
-    webidl.errors.invalidArgument = function(context4) {
+    webidl.errors.invalidArgument = function(context3) {
       return webidl.errors.exception({
-        header: context4.prefix,
-        message: `"${context4.value}" is an invalid ${context4.type}.`
+        header: context3.prefix,
+        message: `"${context3.value}" is an invalid ${context3.type}.`
       });
     };
     webidl.brandCheck = function(V, I, opts = void 0) {
@@ -5666,7 +5666,7 @@ var require_request = __commonJS({
     }
     var Request = class _Request {
       constructor(origin, {
-        path: path3,
+        path: path2,
         method,
         body,
         headers,
@@ -5680,11 +5680,11 @@ var require_request = __commonJS({
         throwOnError,
         expectContinue
       }, handler2) {
-        if (typeof path3 !== "string") {
+        if (typeof path2 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path3[0] !== "/" && !(path3.startsWith("http://") || path3.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path2[0] !== "/" && !(path2.startsWith("http://") || path2.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.exec(path3) !== null) {
+        } else if (invalidPathRegex.exec(path2) !== null) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -5747,7 +5747,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? util.buildURL(path3, query) : path3;
+        this.path = query ? util.buildURL(path2, query) : path2;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6755,9 +6755,9 @@ var require_RedirectHandler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path3 = search ? `${pathname}${search}` : pathname;
+        const path2 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path3;
+        this.opts.path = path2;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -7999,7 +7999,7 @@ var require_client = __commonJS({
         writeH2(client, client[kHTTP2Session], request2);
         return;
       }
-      const { body, method, path: path3, host, upgrade, headers, blocking, reset } = request2;
+      const { body, method, path: path2, host, upgrade, headers, blocking, reset } = request2;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
         body.read(0);
@@ -8049,7 +8049,7 @@ var require_client = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path3} HTTP/1.1\r
+      let header = `${method} ${path2} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -8112,7 +8112,7 @@ upgrade: ${upgrade}\r
       return true;
     }
     function writeH2(client, session, request2) {
-      const { body, method, path: path3, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
+      const { body, method, path: path2, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
       let headers;
       if (typeof reqHeaders === "string") headers = Request[kHTTP2CopyHeaders](reqHeaders.trim());
       else headers = reqHeaders;
@@ -8155,7 +8155,7 @@ upgrade: ${upgrade}\r
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path3;
+      headers[HTTP2_HEADER_PATH] = path2;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -9614,15 +9614,15 @@ var require_api_request = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context4) {
+      onConnect(abort, context3) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context4;
+        this.context = context3;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { callback, opaque, abort, context: context4, responseHeaders, highWaterMark } = this;
+        const { callback, opaque, abort, context: context3, responseHeaders, highWaterMark } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9649,7 +9649,7 @@ var require_api_request = __commonJS({
               trailers: this.trailers,
               opaque,
               body,
-              context: context4
+              context: context3
             });
           }
         }
@@ -9769,15 +9769,15 @@ var require_api_stream = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context4) {
+      onConnect(abort, context3) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context4;
+        this.context = context3;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { factory, opaque, context: context4, callback, responseHeaders } = this;
+        const { factory, opaque, context: context3, callback, responseHeaders } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9805,7 +9805,7 @@ var require_api_stream = __commonJS({
             statusCode,
             headers,
             opaque,
-            context: context4
+            context: context3
           });
           if (!res || typeof res.write !== "function" || typeof res.end !== "function" || typeof res.on !== "function") {
             throw new InvalidReturnValueError("expected Writable");
@@ -9997,17 +9997,17 @@ var require_api_pipeline = __commonJS({
         this.res = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context4) {
+      onConnect(abort, context3) {
         const { ret, res } = this;
         assert2(!res, "pipeline cannot be retried");
         if (ret.destroyed) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context4;
+        this.context = context3;
       }
       onHeaders(statusCode, rawHeaders, resume) {
-        const { opaque, handler: handler2, context: context4 } = this;
+        const { opaque, handler: handler2, context: context3 } = this;
         if (statusCode < 200) {
           if (this.onInfo) {
             const headers = this.responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
@@ -10025,7 +10025,7 @@ var require_api_pipeline = __commonJS({
             headers,
             opaque,
             body: this.res,
-            context: context4
+            context: context3
           });
         } catch (err) {
           this.res.on("error", util.nop);
@@ -10109,7 +10109,7 @@ var require_api_upgrade = __commonJS({
         this.context = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context4) {
+      onConnect(abort, context3) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
@@ -10120,7 +10120,7 @@ var require_api_upgrade = __commonJS({
         throw new SocketError("bad upgrade", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context4 } = this;
+        const { callback, opaque, context: context3 } = this;
         assert2.strictEqual(statusCode, 101);
         removeSignal(this);
         this.callback = null;
@@ -10129,7 +10129,7 @@ var require_api_upgrade = __commonJS({
           headers,
           socket,
           opaque,
-          context: context4
+          context: context3
         });
       }
       onError(err) {
@@ -10197,18 +10197,18 @@ var require_api_connect = __commonJS({
         this.abort = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context4) {
+      onConnect(abort, context3) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context4;
+        this.context = context3;
       }
       onHeaders() {
         throw new SocketError("bad connect", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context4 } = this;
+        const { callback, opaque, context: context3 } = this;
         removeSignal(this);
         this.callback = null;
         let headers = rawHeaders;
@@ -10220,7 +10220,7 @@ var require_api_connect = __commonJS({
           headers,
           socket,
           opaque,
-          context: context4
+          context: context3
         });
       }
       onError(err) {
@@ -10398,20 +10398,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path3) {
-      if (typeof path3 !== "string") {
-        return path3;
+    function safeUrl(path2) {
+      if (typeof path2 !== "string") {
+        return path2;
       }
-      const pathSegments = path3.split("?");
+      const pathSegments = path2.split("?");
       if (pathSegments.length !== 2) {
-        return path3;
+        return path2;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path3, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path3);
+    function matchKey(mockDispatch2, { path: path2, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path2);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10429,7 +10429,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path3 }) => matchValue(safeUrl(path3), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path2 }) => matchValue(safeUrl(path2), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10466,9 +10466,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path3, method, body, headers, query } = opts;
+      const { path: path2, method, body, headers, query } = opts;
       return {
-        path: path3,
+        path: path2,
         method,
         body,
         headers,
@@ -10917,10 +10917,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path3, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path2, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path3,
+            Path: path2,
             "Status code": statusCode,
             Persistent: persist ? "\u2705" : "\u274C",
             Invocations: timesInvoked,
@@ -15541,8 +15541,8 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path3) {
-      for (const char of path3) {
+    function validateCookiePath(path2) {
+      for (const char of path2) {
         const code = char.charCodeAt(0);
         if (code < 33 || char === ";") {
           throw new Error("Invalid cookie path");
@@ -17222,11 +17222,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path3 = opts.path;
+          let path2 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path3 = `/${path3}`;
+            path2 = `/${path2}`;
           }
-          url2 = new URL(util.parseOrigin(url2).origin + path3);
+          url2 = new URL(util.parseOrigin(url2).origin + path2);
         } else {
           if (!opts) {
             opts = typeof url2 === "object" ? url2 : {};
@@ -17598,12 +17598,12 @@ var require_lib = __commonJS({
             throw new Error("Client has already been disposed.");
           }
           const parsedUrl = new URL(requestUrl);
-          let info6 = this._prepareRequest(verb, parsedUrl, headers);
+          let info5 = this._prepareRequest(verb, parsedUrl, headers);
           const maxTries = this._allowRetries && RetryableHttpVerbs.includes(verb) ? this._maxRetries + 1 : 1;
           let numTries = 0;
           let response;
           do {
-            response = yield this.requestRaw(info6, data);
+            response = yield this.requestRaw(info5, data);
             if (response && response.message && response.message.statusCode === HttpCodes.Unauthorized) {
               let authenticationHandler;
               for (const handler2 of this.handlers) {
@@ -17613,7 +17613,7 @@ var require_lib = __commonJS({
                 }
               }
               if (authenticationHandler) {
-                return authenticationHandler.handleAuthentication(this, info6, data);
+                return authenticationHandler.handleAuthentication(this, info5, data);
               } else {
                 return response;
               }
@@ -17636,8 +17636,8 @@ var require_lib = __commonJS({
                   }
                 }
               }
-              info6 = this._prepareRequest(verb, parsedRedirectUrl, headers);
-              response = yield this.requestRaw(info6, data);
+              info5 = this._prepareRequest(verb, parsedRedirectUrl, headers);
+              response = yield this.requestRaw(info5, data);
               redirectsRemaining--;
             }
             if (!response.message.statusCode || !HttpResponseRetryCodes.includes(response.message.statusCode)) {
@@ -17666,7 +17666,7 @@ var require_lib = __commonJS({
        * @param info
        * @param data
        */
-      requestRaw(info6, data) {
+      requestRaw(info5, data) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve, reject) => {
             function callbackForResult(err, res) {
@@ -17678,7 +17678,7 @@ var require_lib = __commonJS({
                 resolve(res);
               }
             }
-            this.requestRawWithCallback(info6, data, callbackForResult);
+            this.requestRawWithCallback(info5, data, callbackForResult);
           });
         });
       }
@@ -17688,12 +17688,12 @@ var require_lib = __commonJS({
        * @param data
        * @param onResult
        */
-      requestRawWithCallback(info6, data, onResult) {
+      requestRawWithCallback(info5, data, onResult) {
         if (typeof data === "string") {
-          if (!info6.options.headers) {
-            info6.options.headers = {};
+          if (!info5.options.headers) {
+            info5.options.headers = {};
           }
-          info6.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
+          info5.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
         }
         let callbackCalled = false;
         function handleResult(err, res) {
@@ -17702,7 +17702,7 @@ var require_lib = __commonJS({
             onResult(err, res);
           }
         }
-        const req = info6.httpModule.request(info6.options, (msg) => {
+        const req = info5.httpModule.request(info5.options, (msg) => {
           const res = new HttpClientResponse(msg);
           handleResult(void 0, res);
         });
@@ -17714,7 +17714,7 @@ var require_lib = __commonJS({
           if (socket) {
             socket.end();
           }
-          handleResult(new Error(`Request timeout: ${info6.options.path}`));
+          handleResult(new Error(`Request timeout: ${info5.options.path}`));
         });
         req.on("error", function(err) {
           handleResult(err);
@@ -17750,27 +17750,27 @@ var require_lib = __commonJS({
         return this._getProxyAgentDispatcher(parsedUrl, proxyUrl);
       }
       _prepareRequest(method, requestUrl, headers) {
-        const info6 = {};
-        info6.parsedUrl = requestUrl;
-        const usingSsl = info6.parsedUrl.protocol === "https:";
-        info6.httpModule = usingSsl ? https : http;
+        const info5 = {};
+        info5.parsedUrl = requestUrl;
+        const usingSsl = info5.parsedUrl.protocol === "https:";
+        info5.httpModule = usingSsl ? https : http;
         const defaultPort = usingSsl ? 443 : 80;
-        info6.options = {};
-        info6.options.host = info6.parsedUrl.hostname;
-        info6.options.port = info6.parsedUrl.port ? parseInt(info6.parsedUrl.port) : defaultPort;
-        info6.options.path = (info6.parsedUrl.pathname || "") + (info6.parsedUrl.search || "");
-        info6.options.method = method;
-        info6.options.headers = this._mergeHeaders(headers);
+        info5.options = {};
+        info5.options.host = info5.parsedUrl.hostname;
+        info5.options.port = info5.parsedUrl.port ? parseInt(info5.parsedUrl.port) : defaultPort;
+        info5.options.path = (info5.parsedUrl.pathname || "") + (info5.parsedUrl.search || "");
+        info5.options.method = method;
+        info5.options.headers = this._mergeHeaders(headers);
         if (this.userAgent != null) {
-          info6.options.headers["user-agent"] = this.userAgent;
+          info5.options.headers["user-agent"] = this.userAgent;
         }
-        info6.options.agent = this._getAgent(info6.parsedUrl);
+        info5.options.agent = this._getAgent(info5.parsedUrl);
         if (this.handlers) {
           for (const handler2 of this.handlers) {
-            handler2.prepareRequest(info6.options);
+            handler2.prepareRequest(info5.options);
           }
         }
-        return info6;
+        return info5;
       }
       _mergeHeaders(headers) {
         if (this.requestOptions && this.requestOptions.headers) {
@@ -18449,7 +18449,7 @@ var require_path_utils = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.toPlatformPath = exports2.toWin32Path = exports2.toPosixPath = void 0;
-    var path3 = __importStar(require("path"));
+    var path2 = __importStar(require("path"));
     function toPosixPath(pth) {
       return pth.replace(/[\\]/g, "/");
     }
@@ -18459,7 +18459,7 @@ var require_path_utils = __commonJS({
     }
     exports2.toWin32Path = toWin32Path;
     function toPlatformPath(pth) {
-      return pth.replace(/[/\\]/g, path3.sep);
+      return pth.replace(/[/\\]/g, path2.sep);
     }
     exports2.toPlatformPath = toPlatformPath;
   }
@@ -18522,12 +18522,12 @@ var require_io_util = __commonJS({
     var _a3;
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getCmdPath = exports2.tryGetExecutablePath = exports2.isRooted = exports2.isDirectory = exports2.exists = exports2.READONLY = exports2.UV_FS_O_EXLOCK = exports2.IS_WINDOWS = exports2.unlink = exports2.symlink = exports2.stat = exports2.rmdir = exports2.rm = exports2.rename = exports2.readlink = exports2.readdir = exports2.open = exports2.mkdir = exports2.lstat = exports2.copyFile = exports2.chmod = void 0;
-    var fs4 = __importStar(require("fs"));
-    var path3 = __importStar(require("path"));
-    _a3 = fs4.promises, exports2.chmod = _a3.chmod, exports2.copyFile = _a3.copyFile, exports2.lstat = _a3.lstat, exports2.mkdir = _a3.mkdir, exports2.open = _a3.open, exports2.readdir = _a3.readdir, exports2.readlink = _a3.readlink, exports2.rename = _a3.rename, exports2.rm = _a3.rm, exports2.rmdir = _a3.rmdir, exports2.stat = _a3.stat, exports2.symlink = _a3.symlink, exports2.unlink = _a3.unlink;
+    var fs3 = __importStar(require("fs"));
+    var path2 = __importStar(require("path"));
+    _a3 = fs3.promises, exports2.chmod = _a3.chmod, exports2.copyFile = _a3.copyFile, exports2.lstat = _a3.lstat, exports2.mkdir = _a3.mkdir, exports2.open = _a3.open, exports2.readdir = _a3.readdir, exports2.readlink = _a3.readlink, exports2.rename = _a3.rename, exports2.rm = _a3.rm, exports2.rmdir = _a3.rmdir, exports2.stat = _a3.stat, exports2.symlink = _a3.symlink, exports2.unlink = _a3.unlink;
     exports2.IS_WINDOWS = process.platform === "win32";
     exports2.UV_FS_O_EXLOCK = 268435456;
-    exports2.READONLY = fs4.constants.O_RDONLY;
+    exports2.READONLY = fs3.constants.O_RDONLY;
     function exists(fsPath) {
       return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -18572,7 +18572,7 @@ var require_io_util = __commonJS({
         }
         if (stats && stats.isFile()) {
           if (exports2.IS_WINDOWS) {
-            const upperExt = path3.extname(filePath).toUpperCase();
+            const upperExt = path2.extname(filePath).toUpperCase();
             if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
               return filePath;
             }
@@ -18596,11 +18596,11 @@ var require_io_util = __commonJS({
           if (stats && stats.isFile()) {
             if (exports2.IS_WINDOWS) {
               try {
-                const directory = path3.dirname(filePath);
-                const upperName = path3.basename(filePath).toUpperCase();
+                const directory = path2.dirname(filePath);
+                const upperName = path2.basename(filePath).toUpperCase();
                 for (const actualName of yield exports2.readdir(directory)) {
                   if (upperName === actualName.toUpperCase()) {
-                    filePath = path3.join(directory, actualName);
+                    filePath = path2.join(directory, actualName);
                     break;
                   }
                 }
@@ -18695,7 +18695,7 @@ var require_io = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.findInPath = exports2.which = exports2.mkdirP = exports2.rmRF = exports2.mv = exports2.cp = void 0;
     var assert_1 = require("assert");
-    var path3 = __importStar(require("path"));
+    var path2 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
     function cp(source, dest, options = {}) {
       return __awaiter(this, void 0, void 0, function* () {
@@ -18704,7 +18704,7 @@ var require_io = __commonJS({
         if (destStat && destStat.isFile() && !force) {
           return;
         }
-        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path3.join(dest, path3.basename(source)) : dest;
+        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path2.join(dest, path2.basename(source)) : dest;
         if (!(yield ioUtil.exists(source))) {
           throw new Error(`no such file or directory: ${source}`);
         }
@@ -18716,7 +18716,7 @@ var require_io = __commonJS({
             yield cpDirRecursive(source, newDest, 0, force);
           }
         } else {
-          if (path3.relative(source, newDest) === "") {
+          if (path2.relative(source, newDest) === "") {
             throw new Error(`'${newDest}' and '${source}' are the same file`);
           }
           yield copyFile(source, newDest, force);
@@ -18729,7 +18729,7 @@ var require_io = __commonJS({
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
           if (yield ioUtil.isDirectory(dest)) {
-            dest = path3.join(dest, path3.basename(source));
+            dest = path2.join(dest, path2.basename(source));
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
@@ -18740,7 +18740,7 @@ var require_io = __commonJS({
             }
           }
         }
-        yield mkdirP(path3.dirname(dest));
+        yield mkdirP(path2.dirname(dest));
         yield ioUtil.rename(source, dest);
       });
     }
@@ -18803,7 +18803,7 @@ var require_io = __commonJS({
         }
         const extensions = [];
         if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
-          for (const extension of process.env["PATHEXT"].split(path3.delimiter)) {
+          for (const extension of process.env["PATHEXT"].split(path2.delimiter)) {
             if (extension) {
               extensions.push(extension);
             }
@@ -18816,12 +18816,12 @@ var require_io = __commonJS({
           }
           return [];
         }
-        if (tool.includes(path3.sep)) {
+        if (tool.includes(path2.sep)) {
           return [];
         }
         const directories = [];
         if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path3.delimiter)) {
+          for (const p of process.env.PATH.split(path2.delimiter)) {
             if (p) {
               directories.push(p);
             }
@@ -18829,7 +18829,7 @@ var require_io = __commonJS({
         }
         const matches = [];
         for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(path3.join(directory, tool), extensions);
+          const filePath = yield ioUtil.tryGetExecutablePath(path2.join(directory, tool), extensions);
           if (filePath) {
             matches.push(filePath);
           }
@@ -18945,7 +18945,7 @@ var require_toolrunner = __commonJS({
     var os = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
-    var path3 = __importStar(require("path"));
+    var path2 = __importStar(require("path"));
     var io = __importStar(require_io());
     var ioUtil = __importStar(require_io_util());
     var timers_1 = require("timers");
@@ -19160,7 +19160,7 @@ var require_toolrunner = __commonJS({
       exec() {
         return __awaiter(this, void 0, void 0, function* () {
           if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS && this.toolPath.includes("\\"))) {
-            this.toolPath = path3.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+            this.toolPath = path2.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
           }
           this.toolPath = yield io.which(this.toolPath, true);
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -19660,7 +19660,7 @@ var require_core = __commonJS({
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
     var os = __importStar(require("os"));
-    var path3 = __importStar(require("path"));
+    var path2 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
     (function(ExitCode2) {
@@ -19688,7 +19688,7 @@ var require_core = __commonJS({
       } else {
         (0, command_1.issueCommand)("add-path", {}, inputPath);
       }
-      process.env["PATH"] = `${inputPath}${path3.delimiter}${process.env["PATH"]}`;
+      process.env["PATH"] = `${inputPath}${path2.delimiter}${process.env["PATH"]}`;
     }
     exports2.addPath = addPath;
     function getInput2(name, options) {
@@ -19752,18 +19752,18 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.error = error52;
-    function warning3(message, properties = {}) {
+    function warning2(message, properties = {}) {
       (0, command_1.issueCommand)("warning", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
-    exports2.warning = warning3;
+    exports2.warning = warning2;
     function notice(message, properties = {}) {
       (0, command_1.issueCommand)("notice", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.notice = notice;
-    function info6(message) {
+    function info5(message) {
       process.stdout.write(message + os.EOL);
     }
-    exports2.info = info6;
+    exports2.info = info5;
     function startGroup(name) {
       (0, command_1.issue)("group", name);
     }
@@ -19844,8 +19844,8 @@ var require_context = __commonJS({
           if ((0, fs_1.existsSync)(process.env.GITHUB_EVENT_PATH)) {
             this.payload = JSON.parse((0, fs_1.readFileSync)(process.env.GITHUB_EVENT_PATH, { encoding: "utf8" }));
           } else {
-            const path3 = process.env.GITHUB_EVENT_PATH;
-            process.stdout.write(`GITHUB_EVENT_PATH ${path3} does not exist${os_1.EOL}`);
+            const path2 = process.env.GITHUB_EVENT_PATH;
+            process.stdout.write(`GITHUB_EVENT_PATH ${path2} does not exist${os_1.EOL}`);
           }
         }
         this.eventName = process.env.GITHUB_EVENT_NAME;
@@ -20359,8 +20359,8 @@ function isDefined(value) {
 function isKeyOperator(operator) {
   return operator === ";" || operator === "&" || operator === "?";
 }
-function getValues(context4, operator, key, modifier) {
-  var value = context4[key], result = [];
+function getValues(context3, operator, key, modifier) {
+  var value = context3[key], result = [];
   if (isDefined(value) && value !== "") {
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       value = value.toString();
@@ -20424,7 +20424,7 @@ function parseUrl(template) {
     expand: expand.bind(null, template)
   };
 }
-function expand(template, context4) {
+function expand(template, context3) {
   var operators = ["+", "#", ".", "/", ";", "?", "&"];
   template = template.replace(
     /\{([^\{\}]+)\}|([^\{\}]+)/g,
@@ -20438,7 +20438,7 @@ function expand(template, context4) {
         }
         expression.split(/,/g).forEach(function(variable) {
           var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-          values.push(getValues(context4, operator, tmp[1], tmp[2] || tmp[3]));
+          values.push(getValues(context3, operator, tmp[1], tmp[2] || tmp[3]));
         });
         if (operator && operator !== "+") {
           var separator = ",";
@@ -23946,9 +23946,9 @@ __export(cdk_exports, {
   renderMarkdown: () => renderMarkdown
 });
 module.exports = __toCommonJS(cdk_exports);
-var fs3 = __toESM(require("fs"));
-var core5 = __toESM(require_core());
-var github3 = __toESM(require_github());
+var fs2 = __toESM(require("fs"));
+var core4 = __toESM(require_core());
+var github2 = __toESM(require_github());
 
 // src/cdk/comment.ts
 var core2 = __toESM(require_core());
@@ -24188,8 +24188,7 @@ function renderStackBody(diff) {
 function renderMarkdown({
   diffs,
   header = "\u{1F4DD} CDK Diff",
-  awsRegion,
-  usageAssumptions = ""
+  awsRegion
 }) {
   const trimmedHeader = header.replace(/^#+\s*/, "");
   core2.info(`Rendering markdown for ${diffs.length} diff(s)`);
@@ -24197,15 +24196,15 @@ function renderMarkdown({
     core2.info("No changes detected - rendering empty diff message");
     return `## ${trimmedHeader}
 
-**\u2192 No Changes!**${usageAssumptions}`;
+**\u2192 No Changes!**`;
   }
   let body = "";
   const allWarnings = diffs.flatMap((diff) => diff.warnings || []);
   if (allWarnings.length > 0) {
     core2.info(`Including ${allWarnings.length} warning(s) in markdown output`);
     body += "> [!WARNING]\n";
-    for (const warning3 of allWarnings) {
-      body += `> ${warning3}
+    for (const warning2 of allWarnings) {
+      body += `> ${warning2}
 `;
     }
     body += "\n";
@@ -24244,7 +24243,7 @@ function renderMarkdown({
   }
   return `## ${trimmedHeader}
 
-${body}${footer}${usageAssumptions}`;
+${body}${footer}`;
 }
 async function createOrUpdateComment({
   octokit,
@@ -25223,10 +25222,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path3) {
-  if (!path3)
+function getElementAtPath(obj, path2) {
+  if (!path2)
     return obj;
-  return path3.reduce((acc, key) => acc?.[key], obj);
+  return path2.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -25635,11 +25634,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path3, issues) {
+function prefixIssues(path2, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path3);
+    iss.path.unshift(path2);
     return iss;
   });
 }
@@ -25786,16 +25785,16 @@ function flattenError(error52, mapper = (issue2) => issue2.message) {
 }
 function formatError(error52, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error53, path3 = []) => {
+  const processError = (error53, path2 = []) => {
     for (const issue2 of error53.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else {
-        const fullpath = [...path3, ...issue2.path];
+        const fullpath = [...path2, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -25822,17 +25821,17 @@ function formatError(error52, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error52, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error53, path3 = []) => {
+  const processError = (error53, path2 = []) => {
     var _a3, _b;
     for (const issue2 of error53.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else {
-        const fullpath = [...path3, ...issue2.path];
+        const fullpath = [...path2, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -25864,8 +25863,8 @@ function treeifyError(error52, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path3 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path3) {
+  const path2 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path2) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -38557,13 +38556,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path3 = ref.slice(1).split("/").filter(Boolean);
-  if (path3.length === 0) {
+  const path2 = ref.slice(1).split("/").filter(Boolean);
+  if (path2.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path3[0] === defsKey) {
-    const key = path3[1];
+  if (path2[0] === defsKey) {
+    const key = path2[1];
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -39140,6 +39139,7 @@ var TEMPLATE_PRICING_INPUTS = Object.freeze({
   Instances: "Instances",
   Iops: "Iops",
   IpAddressCount: "IpAddressCount",
+  IpAddressType: "IpAddressType",
   LaunchType: "LaunchType",
   LifecycleConfiguration: "LifecycleConfiguration",
   LifecycleTransitionToArchive: "LifecycleTransitionToArchive",
@@ -39186,6 +39186,7 @@ var TEMPLATE_PRICING_INPUTS = Object.freeze({
   Size: "Size",
   ScalingConfig: "ScalingConfig",
   ScalingConfiguration: "ScalingConfiguration",
+  Scheme: "Scheme",
   SnapStart: "SnapStart",
   SpotTargetCapacity: "SpotTargetCapacity",
   Storage: "Storage",
@@ -39291,6 +39292,7 @@ var TERRAFORM_COMMON_PRICING_INPUTS = Object.freeze({
   ami: "MachineImage",
   iops: "Iops",
   ip_address_count: "IpAddressCount",
+  ip_address_type: "IpAddressType",
   launch_type: "LaunchType",
   lifecycle_configuration: "LifecycleConfiguration",
   license_model: "LicenseModel",
@@ -39378,6 +39380,8 @@ var TERRAFORM_RESOURCE_PRICING_INPUTS = Object.freeze({
   aws_vpn_connection: { type: "Type" }
 });
 var SPECIALIZED_PRICING_INPUT_NAMES = [
+  "AssignPublicIp",
+  "BlockDeviceMappings",
   "Bucket",
   "MarketType",
   "IntelligentTieringConfigurations",
@@ -39385,6 +39389,7 @@ var SPECIALIZED_PRICING_INPUT_NAMES = [
   "MaxConcurrency",
   "ProvisionedConcurrency",
   "ResourceSpec",
+  "RootVolume",
   "StorageType"
 ];
 var RESOURCE_CHANGE_PRICING_INPUT_NAMES = /* @__PURE__ */ new Set([
@@ -39703,6 +39708,7 @@ var UNSUPPORTED_PRICE_DRIVER_FIELDS = Object.freeze({
   aws_opensearchserverless_collection: ["standby_replicas"],
   "AWS::EC2::Instance": ["CpuOptions"],
   aws_instance: ["cpu_options"],
+  aws_launch_template: ["cpu_options"],
   "AWS::S3::Bucket": ["BucketEncryption", "LifecycleConfiguration", "ReplicationConfiguration"],
   aws_s3_bucket: ["server_side_encryption_configuration", "lifecycle_rule", "replication_configuration"],
   aws_s3_bucket_lifecycle_configuration: ["rule"],
@@ -39742,15 +39748,21 @@ var UNSUPPORTED_PRICE_DRIVER_FIELDS = Object.freeze({
   aws_vpn_connection: ["enable_acceleration"],
   "AWS::SecretsManager::Secret": ["ReplicaRegions"],
   aws_secretsmanager_secret: ["replica"],
-  "AWS::ElasticLoadBalancingV2::LoadBalancer": ["MinimumLoadBalancerCapacity", "Scheme", "IpAddressType"],
-  aws_lb: ["minimum_load_balancer_capacity", "internal", "ip_address_type"],
-  aws_alb: ["minimum_load_balancer_capacity", "internal", "ip_address_type"],
+  "AWS::ElasticLoadBalancingV2::LoadBalancer": ["MinimumLoadBalancerCapacity"],
+  aws_lb: ["minimum_load_balancer_capacity"],
+  aws_alb: ["minimum_load_balancer_capacity"],
   "AWS::Batch::ComputeEnvironment": ["ComputeResources"],
   aws_batch_compute_environment: ["compute_resources"],
   "AWS::KMS::Key": ["KeySpec", "KeyUsage"],
   aws_kms_key: ["customer_master_key_spec", "key_usage"],
   "AWS::Route53::HostedZone": ["VPCs"],
   aws_route53_zone: ["vpc"]
+});
+var PRICE_NEUTRAL_DRIVER_VALUES = Object.freeze({
+  "AWS::RDS::DBInstance": { DatabaseInsightsMode: ["standard"], PerformanceInsightsRetentionPeriod: [7] },
+  aws_db_instance: { database_insights_mode: ["standard"], performance_insights_retention_period: [0, 7] },
+  "AWS::KMS::Key": { KeySpec: ["SYMMETRIC_DEFAULT"], KeyUsage: ["ENCRYPT_DECRYPT"] },
+  aws_kms_key: { customer_master_key_spec: ["SYMMETRIC_DEFAULT"], key_usage: ["ENCRYPT_DECRYPT"] }
 });
 function hasUnsupportedPricingTopology(resourceType, values) {
   const variants = resourceType === "AWS::SageMaker::EndpointConfig" ? values.ProductionVariants : resourceType === "aws_sagemaker_endpoint_configuration" ? values.production_variants : void 0;
@@ -39762,16 +39774,14 @@ function hasUnsupportedPricingTopology(resourceType, values) {
     const object2 = record2(value);
     return object2 ? Object.keys(object2).length > 0 : value !== void 0 && value !== null;
   };
-  if ((UNSUPPORTED_PRICE_DRIVER_FIELDS[resourceType] ?? []).some((field2) => hasTopology(values[field2]))) return true;
-  if (resourceType === "AWS::EC2::Instance") return hasTopology(values.BlockDeviceMappings);
-  if (resourceType === "aws_instance") {
-    return hasTopology(values.root_block_device) || hasTopology(values.ebs_block_device);
-  }
+  const neutral = PRICE_NEUTRAL_DRIVER_VALUES[resourceType] ?? {};
+  const isPriceDriver = (field2) => hasTopology(values[field2]) && !(neutral[field2] ?? []).includes(values[field2]);
+  if ((UNSUPPORTED_PRICE_DRIVER_FIELDS[resourceType] ?? []).some(isPriceDriver)) return true;
   if (resourceType === "AWS::AutoScaling::AutoScalingGroup") {
-    return [values.LaunchTemplate, values.MixedInstancesPolicy, values.LaunchConfigurationName].some(hasTopology);
+    return [values.MixedInstancesPolicy, values.LaunchConfigurationName].some(hasTopology);
   }
   if (resourceType === "aws_autoscaling_group") {
-    return [values.launch_template, values.mixed_instances_policy, values.launch_configuration].some(hasTopology);
+    return [values.mixed_instances_policy, values.launch_configuration].some(hasTopology);
   }
   return false;
 }
@@ -39851,6 +39861,76 @@ function projectEc2FleetTargetCapacity(projections, value, source, sourcePath) {
     const key = specification[canonical] === void 0 ? terraform : canonical;
     setProjection(projections, canonical, source, specification[key], [...sourcePath, key]);
   }
+}
+var SOURCE_DERIVED_TERRAFORM_ATTRIBUTES = Object.freeze({
+  aws_db_instance: ["snapshot_identifier", "replicate_source_db", "restore_to_point_in_time", "s3_import"],
+  aws_rds_cluster: ["snapshot_identifier", "restore_to_point_in_time", "s3_import", "replication_source_identifier"],
+  aws_ebs_volume: ["snapshot_id"],
+  aws_instance: ["launch_template"],
+  aws_elasticache_cluster: ["snapshot_name", "snapshot_arns"],
+  aws_elasticache_replication_group: ["snapshot_name", "snapshot_arns"],
+  aws_dynamodb_table: ["restore_source_name", "restore_source_table_arn", "import_table"]
+});
+var IMAGE_DERIVED_TERRAFORM_ATTRIBUTES = Object.freeze({
+  aws_instance: ["root_block_device"]
+});
+var ROOT_DEVICE_NAMES = /* @__PURE__ */ new Set(["/dev/xvda", "/dev/sda1"]);
+var VOLUME_FIELDS = [
+  ["VolumeSize", "VolumeSize", "volume_size"],
+  ["VolumeType", "VolumeType", "volume_type"],
+  ["Iops", "Iops", "iops"],
+  ["Throughput", "Throughput", "throughput"]
+];
+function volume(block, source) {
+  const index = source === "template" ? 1 : 2;
+  const fields = Object.fromEntries(
+    VOLUME_FIELDS.map((field2) => [field2[0], block[field2[index]]]).filter(
+      ([, value]) => value !== void 0 && value !== null
+    )
+  );
+  const deleteOnTermination = block[source === "template" ? "DeleteOnTermination" : "delete_on_termination"];
+  if (deleteOnTermination === false || deleteOnTermination === "false")
+    return { ...fields, DeleteOnTermination: false };
+  return containsUnresolvedTemplateExpression(deleteOnTermination) ? { ...fields, DeleteOnTermination: deleteOnTermination } : fields;
+}
+function setVolumes(projections, source, devices) {
+  const data = [];
+  for (const { deviceName, volume: deviceVolume } of devices) {
+    if (ROOT_DEVICE_NAMES.has(deviceName)) {
+      setProjection(projections, "RootVolume", source, deviceVolume);
+    } else {
+      data.push(
+        deviceVolume === UNRESOLVED_TEMPLATE_PRICING_INPUT ? deviceVolume : { ...deviceName == null ? {} : { DeviceName: deviceName }, ...deviceVolume }
+      );
+    }
+  }
+  if (data.length > 0) setProjection(projections, "BlockDeviceMappings", source, data);
+}
+function projectTemplateVolumes(projections, mappings, source) {
+  if (mappings === void 0) return;
+  const devices = Array.isArray(mappings) ? mappings.map(record2) : void 0;
+  if (!devices || devices.some((device) => !device || containsUnresolvedTemplateExpression(device.DeviceName))) {
+    setProjection(projections, "RootVolume", source, UNRESOLVED_TEMPLATE_PRICING_INPUT);
+    setProjection(projections, "BlockDeviceMappings", source, UNRESOLVED_TEMPLATE_PRICING_INPUT);
+    return;
+  }
+  setVolumes(
+    projections,
+    source,
+    devices.filter((device) => device.Ebs !== void 0).map((device) => {
+      const ebs = record2(device.Ebs);
+      return {
+        deviceName: device.DeviceName,
+        volume: ebs ? volume(ebs, "template") : UNRESOLVED_TEMPLATE_PRICING_INPUT
+      };
+    })
+  );
+}
+var booleanValue = (value, ifTrue, ifFalse) => value === true || value === "true" ? ifTrue : value === false || value === "false" ? ifFalse : value;
+function primaryInterface(interfaces, indexField) {
+  if (!Array.isArray(interfaces)) return void 0;
+  const records = interfaces.map(record2).filter((entry) => entry !== void 0);
+  return records.find((entry) => String(entry[indexField] ?? "0") === "0");
 }
 var AURORA_ENGINES = /* @__PURE__ */ new Set(["aurora", "aurora-mysql", "aurora-postgresql"]);
 var AURORA_STANDARD_STORAGE_TYPE = "aurora";
@@ -39983,6 +40063,23 @@ function projectTemplatePricingInputs(resourceType, properties, options = {}) {
       "ReplicationConfiguration",
       projectEfsReplicationConfiguration(properties.ReplicationConfiguration)
     );
+  }
+  if (resourceType === "AWS::EC2::Instance") {
+    projectTemplateVolumes(projections, properties.BlockDeviceMappings, "BlockDeviceMappings");
+    const primary = primaryInterface(properties.NetworkInterfaces, "DeviceIndex");
+    const associate = primary?.AssociatePublicIpAddress;
+    const unresolved = containsUnresolvedTemplateExpression(associate) || !primary && containsUnresolvedTemplateExpression(properties.NetworkInterfaces);
+    setProjection(
+      projections,
+      "AssignPublicIp",
+      "NetworkInterfaces",
+      unresolved ? UNRESOLVED_TEMPLATE_PRICING_INPUT : booleanValue(associate, "ENABLED", "DISABLED")
+    );
+  }
+  if (resourceType === "AWS::ECS::Service") {
+    const awsvpc = record2(record2(properties.NetworkConfiguration)?.AwsvpcConfiguration);
+    if (awsvpc)
+      setProjection(projections, "AssignPublicIp", "NetworkConfiguration", awsvpc.AssignPublicIp ?? "DISABLED");
   }
   if (resourceType === "AWS::ECS::TaskDefinition") {
     const runtime = record2(properties.RuntimePlatform);
@@ -40126,6 +40223,15 @@ function projectTemplatePricingInputs(resourceType, properties, options = {}) {
       projectFsxConfiguration(projections, properties[source], source);
     }
   }
+  if (resourceType === "AWS::EC2::VPCEndpoint" && Array.isArray(properties.SubnetIds)) {
+    const countable = properties.SubnetIds.every(
+      (subnet) => typeof subnet === "string" || record2(subnet) !== void 0 && Object.keys(subnet).length === 1 && ["Ref", "Fn::GetAtt", "Fn::ImportValue"].includes(Object.keys(subnet)[0])
+    );
+    if (countable && properties.SubnetIds.some(containsUnresolvedTemplateExpression)) {
+      projections.delete("SubnetIds");
+      setProjection(projections, "EndpointCount", "SubnetIds", properties.SubnetIds.length);
+    }
+  }
   if (resourceType === "AWS::NetworkFirewall::Firewall" && Array.isArray(properties.SubnetMappings)) {
     setProjection(projections, "EndpointCount", "SubnetMappings", properties.SubnetMappings.length);
   }
@@ -40181,38 +40287,16 @@ var resourceChangeSchema = external_exports.object({
   old: pricingInputSideSchema,
   new: pricingInputSideSchema
 }).strict();
-function assumptionSnapshotSchema(fence) {
-  return external_exports.object({
-    fence: external_exports.literal(fence),
-    revision: boundedString.optional()
-  }).strict();
-}
 var resourceChangeSetSchema = external_exports.object({
   schemaVersion: external_exports.literal(RESOURCE_CHANGE_SCHEMA_VERSION),
   source: external_exports.enum(["terraform", "cloudformation", "cdk"]),
   region: external_exports.string().refine((region) => cloudBurnPricingRegions.has(region), "Region has no CloudBurn pricing mapping"),
-  assumptionSnapshots: external_exports.object({
-    old: assumptionSnapshotSchema("cloudburn-usage-assumptions-previous"),
-    new: assumptionSnapshotSchema("cloudburn-usage-assumptions-current")
-  }).strict(),
   changes: external_exports.array(resourceChangeSchema).max(MAX_RESOURCE_CHANGES),
   integrity: external_exports.object({
     algorithm: external_exports.literal("sha256"),
     digest: external_exports.string().regex(/^[a-f0-9]{64}$/)
   }).strict()
 }).strict();
-function createAssumptionSnapshots(beforeRevision, afterRevision) {
-  return {
-    old: {
-      fence: "cloudburn-usage-assumptions-previous",
-      ...beforeRevision ? { revision: beforeRevision } : {}
-    },
-    new: {
-      fence: "cloudburn-usage-assumptions-current",
-      ...afterRevision ? { revision: afterRevision } : {}
-    }
-  };
-}
 function sortKeysDeep(value) {
   if (Array.isArray(value)) {
     return value.map(sortKeysDeep);
@@ -40355,7 +40439,6 @@ function buildCdkResourceChangeSetFromDiff(options) {
   return createResourceChangeSet({
     source: "cdk",
     region: options.region,
-    assumptionSnapshots: createAssumptionSnapshots(options.beforeRevision, options.afterRevision),
     changes
   });
 }
@@ -40434,6 +40517,52 @@ function isPullRequestCommentEvent(eventName) {
 var fs = __toESM(require("fs"));
 var path = __toESM(require("path"));
 var import_node_util = require("util");
+
+// src/resource-changes/embedded-inputs.ts
+var TASK_DEFINITION_INPUTS = ["Cpu", "Memory", "CpuArchitecture", "OperatingSystemFamily", "EphemeralStorageSize"];
+var TASK_DEFINITION_EMBEDDING = {
+  referenceInput: "TaskDefinition",
+  names: TASK_DEFINITION_INPUTS
+};
+var LAUNCH_TEMPLATE_INPUTS = [
+  "InstanceType",
+  "MachineImage",
+  "OperatingSystem",
+  "Tenancy",
+  "MarketType",
+  "Monitoring",
+  "AssignPublicIp",
+  "RootVolume",
+  "BlockDeviceMappings"
+];
+var LAUNCH_TEMPLATE_EMBEDDING = {
+  referenceInput: "LaunchTemplate",
+  names: LAUNCH_TEMPLATE_INPUTS
+};
+function embedResolvedInputs(side, resolved, { referenceInput, names }) {
+  if (side.state !== "known" && side.state !== "partial") return side;
+  const inputs = { ...side.inputs };
+  delete inputs[referenceInput];
+  const unknowns = (side.state === "partial" ? side.unknowns : []).filter(
+    ({ path: path2 }) => path2 !== referenceInput
+  );
+  if (resolved.state === "unknown") {
+    unknowns.push(...names.map((path2) => ({ path: path2, reason: resolved.reason })));
+  } else if (resolved.state === "known" || resolved.state === "partial") {
+    for (const name of names) {
+      if (resolved.inputs[name] !== void 0) inputs[name] = resolved.inputs[name];
+    }
+    if (resolved.state === "partial") {
+      unknowns.push(...resolved.unknowns.filter(({ path: path2 }) => names.includes(path2)));
+    }
+  }
+  if (unknowns.length === 0) return { state: "known", inputs };
+  if (Object.keys(inputs).length === 0) return { state: "unknown", reason: unknowns[0].reason };
+  return { state: "partial", inputs, unknowns };
+}
+var isPublicImagePath = (value) => typeof value === "string" && value.startsWith("/aws/service/");
+
+// src/resource-changes/templates.ts
 var templateResourceSchema = external_exports.object({
   Type: external_exports.string().min(1).max(512),
   Properties: external_exports.record(external_exports.string(), external_exports.json()).optional(),
@@ -40603,15 +40732,72 @@ function templateResources(template) {
 function isNewDbCluster(logicalId, previousTemplate) {
   return previousTemplate !== void 0 && templateResources(previousTemplate.template)[logicalId]?.Type !== "AWS::RDS::DBCluster";
 }
-function referencedClusterStorageType(properties, template, previousTemplate) {
-  const reference = properties.DBClusterIdentifier?.Ref;
+function referencedResource(value, type, template) {
+  const reference = value?.Ref;
   if (typeof reference !== "string") return void 0;
-  const cluster = templateResources(template)[reference];
-  if (cluster?.Type !== "AWS::RDS::DBCluster" || cluster.Condition !== void 0) return void 0;
+  const resource = templateResources(template)[reference];
+  return resource?.Type === type && resource.Condition === void 0 ? [reference, resource] : void 0;
+}
+function referencedClusterStorageType(properties, template, previousTemplate) {
+  const referenced = referencedResource(properties.DBClusterIdentifier, "AWS::RDS::DBCluster", template);
+  if (!referenced) return void 0;
+  const [reference, cluster] = referenced;
   const storageType = templateClusterStorageType(cluster.Properties ?? {}, isNewDbCluster(reference, previousTemplate));
   return typeof storageType === "string" && !containsUnresolvedTemplateExpression(storageType) ? storageType : void 0;
 }
-function pricingSide(resource, template, { logicalId, previousTemplate }) {
+var SSM_IMAGE_PARAMETER_TYPE = "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>";
+function withPublicImagePath(resource, template) {
+  const reference = resource.Properties?.ImageId?.Ref;
+  if (typeof reference !== "string") return resource;
+  const parameter = template?.Parameters?.[reference];
+  if (parameter?.Type !== SSM_IMAGE_PARAMETER_TYPE || !reference.startsWith("SsmParameterValue")) return resource;
+  if (!isPublicImagePath(parameter.Default)) return resource;
+  return { ...resource, Properties: { ...resource.Properties, ImageId: parameter.Default } };
+}
+function launchTemplateSide(properties, template, context3) {
+  const specification = properties.LaunchTemplate;
+  if (specification === void 0) return void 0;
+  const identifier = specification.LaunchTemplateId ?? specification.LaunchTemplateName;
+  const reference = identifier?.Ref;
+  if (typeof reference !== "string") {
+    return {
+      state: "unknown",
+      reason: containsUnresolvedTemplateExpression(identifier) ? "unresolved-expression" : "not-in-artifact"
+    };
+  }
+  const launchTemplate = referencedResource(identifier, "AWS::EC2::LaunchTemplate", template)?.[1];
+  if (!launchTemplate) return { state: "unknown", reason: "unresolved-expression" };
+  const getAtt = specification.Version?.["Fn::GetAtt"];
+  const [target, attribute] = typeof getAtt === "string" ? getAtt.split(".") : Array.isArray(getAtt) ? getAtt : [];
+  const isNew = context3.previousTemplate !== void 0 && templateResources(context3.previousTemplate.template)[reference]?.Type !== "AWS::EC2::LaunchTemplate";
+  const current = specification.Version === void 0 ? isNew : target === reference && (attribute === "LatestVersionNumber" || attribute === "DefaultVersionNumber" && isNew);
+  if (!current) return { state: "unknown", reason: "unresolved-expression" };
+  const data = launchTemplate.Properties?.LaunchTemplateData ?? {};
+  const monitoring = data.Monitoring?.Enabled;
+  const instance = {
+    ...launchTemplate,
+    Type: "AWS::EC2::Instance",
+    Properties: {
+      ...data,
+      ...monitoring === void 0 ? {} : { Monitoring: monitoring }
+    }
+  };
+  return ownPricingSide(withPublicImagePath(instance, template), template, { ...context3, logicalId: reference });
+}
+function pricingSide(resource, template, context3) {
+  const side = ownPricingSide(withPublicImagePath(resource, template), template, context3);
+  if (resource.Type === "AWS::AutoScaling::AutoScalingGroup") {
+    const instances = launchTemplateSide(resource.Properties ?? {}, template, context3);
+    return instances ? embedResolvedInputs(side, instances, LAUNCH_TEMPLATE_EMBEDDING) : side;
+  }
+  if (resource.Type !== "AWS::ECS::Service") return side;
+  const taskDefinition = referencedResource(resource.Properties?.TaskDefinition, "AWS::ECS::TaskDefinition", template);
+  if (!taskDefinition) return side;
+  const [logicalId, taskDefinitionResource] = taskDefinition;
+  const resolved = ownPricingSide(taskDefinitionResource, template, { ...context3, logicalId });
+  return embedResolvedInputs(side, resolved, TASK_DEFINITION_EMBEDDING);
+}
+function ownPricingSide(resource, template, { logicalId, previousTemplate }) {
   if (template?.Transform !== void 0) {
     return { state: "unknown", reason: "unresolved-expression" };
   }
@@ -41087,7 +41273,6 @@ function buildParsedTemplateResourceChangeDraft(options, parsedChanges) {
   return {
     source: options.source,
     region: options.region,
-    assumptionSnapshots: createAssumptionSnapshots(options.beforeRevision, options.afterRevision),
     changes
   };
 }
@@ -41111,123 +41296,11 @@ function loadParsedTemplateChangePathOptions(options) {
     source: options.source,
     region: options.region,
     before: loadTemplateStacks(options.beforePath, options.stackName, options.region),
-    after: loadTemplateStacks(options.afterPath, options.stackName, options.region),
-    beforeRevision: options.beforeRevision,
-    afterRevision: options.afterRevision
+    after: loadTemplateStacks(options.afterPath, options.stackName, options.region)
   };
 }
 function buildTemplateChangeArtifactsFromPaths(options) {
   return buildParsedTemplateChangeArtifacts(loadParsedTemplateChangePathOptions(options));
-}
-
-// src/utils/usage-assumptions.ts
-var fs2 = __toESM(require("fs"));
-var path2 = __toESM(require("path"));
-var core4 = __toESM(require_core());
-var github2 = __toESM(require_github());
-
-// src/utils/comment-appendix.ts
-function fencedBlock(language, content) {
-  const longestBacktickRun = Math.max(0, ...(content.match(/`+/g) ?? []).map((run2) => run2.length));
-  const delimiter = "`".repeat(Math.max(3, longestBacktickRun + 1));
-  return `${delimiter}${language}
-${content}
-${delimiter}`;
-}
-function renderCollapsedAppendix(summary2, blocks) {
-  if (blocks.length === 0) return "";
-  return `
-
-<details><summary><em>${summary2}</em></summary>
-
-${blocks.join("\n\n")}
-
-</details>`;
-}
-
-// src/utils/usage-assumptions.ts
-var USAGE_ASSUMPTIONS_PATH = ".cloudburn/usage-assumptions.json";
-var MAX_USAGE_ASSUMPTIONS_BYTES = 64 * 1024;
-var BLOCK_LABEL = "cloudburn-usage-assumptions";
-function errorFence(name, message) {
-  return fencedBlock(`${BLOCK_LABEL}-${name}-error`, JSON.stringify({ message }));
-}
-function toFencedBlock(name, snapshot) {
-  if (snapshot.status === "absent") {
-    return void 0;
-  }
-  if (snapshot.status === "unavailable") {
-    return errorFence(name, "Usage assumptions could not be read at the pull request base commit");
-  }
-  if (Buffer.byteLength(snapshot.content, "utf-8") > MAX_USAGE_ASSUMPTIONS_BYTES) {
-    core4.warning(
-      `Skipping the ${name} usage assumptions: '${USAGE_ASSUMPTIONS_PATH}' exceeds ${MAX_USAGE_ASSUMPTIONS_BYTES} bytes.`
-    );
-    return errorFence(name, "Usage assumptions file exceeds the maximum allowed size");
-  }
-  try {
-    JSON.parse(snapshot.content);
-  } catch {
-    core4.warning(`Skipping the ${name} usage assumptions: '${USAGE_ASSUMPTIONS_PATH}' is not valid JSON.`);
-    return errorFence(name, "Usage assumptions file is not valid JSON");
-  }
-  return fencedBlock(`${BLOCK_LABEL}-${name}`, snapshot.content.trim());
-}
-function renderUsageAssumptions({ current, previous }) {
-  if (current.status === "absent" && previous.status === "unavailable") {
-    return "";
-  }
-  const blocks = [toFencedBlock("current", current), toFencedBlock("previous", previous)].filter(
-    (block) => block !== void 0
-  );
-  if (blocks.length === 0) {
-    return "";
-  }
-  core4.info(`Embedding ${blocks.length} usage assumptions block(s) in the comment`);
-  return renderCollapsedAppendix("CloudBurn usage assumptions", blocks);
-}
-async function readAtCommit(octokit, ref) {
-  try {
-    const { data } = await octokit.rest.repos.getContent({
-      owner: github2.context.repo.owner,
-      repo: github2.context.repo.repo,
-      path: USAGE_ASSUMPTIONS_PATH,
-      ref
-    });
-    if (Array.isArray(data) || data.type !== "file" || data.encoding !== "base64") {
-      core4.warning(`'${USAGE_ASSUMPTIONS_PATH}' at commit ${ref} is not a readable file.`);
-      return { status: "unavailable" };
-    }
-    return { status: "found", content: Buffer.from(data.content, "base64").toString("utf-8") };
-  } catch (error52) {
-    if (error52.status === 404) {
-      core4.info(`No '${USAGE_ASSUMPTIONS_PATH}' at commit ${ref}, treating the file as newly added`);
-      return { status: "absent" };
-    }
-    core4.warning(
-      `Could not read '${USAGE_ASSUMPTIONS_PATH}' at commit ${ref}: ${error52 instanceof Error ? error52.message : String(error52)}`
-    );
-    return { status: "unavailable" };
-  }
-}
-async function readUsageAssumptions(options) {
-  const workspace = options.workspace ?? process.env.GITHUB_WORKSPACE ?? process.cwd();
-  const file2 = path2.join(workspace, USAGE_ASSUMPTIONS_PATH);
-  if (!fs2.existsSync(file2)) {
-    core4.info(`No '${USAGE_ASSUMPTIONS_PATH}' in the workspace, skipping usage assumptions`);
-    return { current: { status: "absent" }, previous: { status: "absent" } };
-  }
-  core4.info(`Reading usage assumptions from '${USAGE_ASSUMPTIONS_PATH}'`);
-  const current = { status: "found", content: fs2.readFileSync(file2, "utf-8") };
-  const baseSha = options.baseSha ?? github2.context.payload.pull_request?.base?.sha;
-  if (!baseSha) {
-    core4.info("No pull request base commit available, embedding the current usage assumptions only");
-    return { current, previous: { status: "absent" } };
-  }
-  return { current, previous: await readAtCommit(options.octokit, baseSha) };
-}
-async function usageAssumptionsSection(options) {
-  return renderUsageAssumptions(await readUsageAssumptions(options));
 }
 
 // src/cdk/cloudformation-render.ts
@@ -41254,14 +41327,14 @@ function renderCloudFormationChanges(changeSummary) {
 // src/cdk/index.ts
 async function run() {
   const inputs = {
-    token: core5.getInput("token", { required: true }),
-    diffFile: core5.getInput("diff-file", { required: false }),
-    header: core5.getInput("header", { required: false }),
-    awsRegion: core5.getInput("aws-region", { required: false }),
-    sourceType: core5.getInput("source-type", { required: false }) || "cdk",
-    beforeTemplate: core5.getInput("before-template", { required: false }),
-    afterTemplate: core5.getInput("after-template", { required: false }),
-    stackName: core5.getInput("stack-name", { required: false })
+    token: core4.getInput("token", { required: true }),
+    diffFile: core4.getInput("diff-file", { required: false }),
+    header: core4.getInput("header", { required: false }),
+    awsRegion: core4.getInput("aws-region", { required: false }),
+    sourceType: core4.getInput("source-type", { required: false }) || "cdk",
+    beforeTemplate: core4.getInput("before-template", { required: false }),
+    afterTemplate: core4.getInput("after-template", { required: false }),
+    stackName: core4.getInput("stack-name", { required: false })
   };
   if (inputs.sourceType !== "cdk" && inputs.sourceType !== "cloudformation") {
     throw new Error("The source-type input must be 'cdk' or 'cloudformation'");
@@ -41277,13 +41350,13 @@ async function run() {
     throw new Error("CloudFormation mode requires the aws-region input");
   }
   validateAwsRegion(inputs.awsRegion || void 0);
-  const octokit = github3.getOctokit(inputs.token);
-  const cdkDiff = await core5.group("Parse CDK diff", async () => {
+  const octokit = github2.getOctokit(inputs.token);
+  const cdkDiff = await core4.group("Parse CDK diff", async () => {
     if (inputs.sourceType === "cloudformation") return [];
     if (!inputs.diffFile) throw new Error("CDK mode requires the diff-file input");
     let diffOutput;
     try {
-      diffOutput = fs3.readFileSync(inputs.diffFile, "utf-8");
+      diffOutput = fs2.readFileSync(inputs.diffFile, "utf-8");
     } catch (error52) {
       throw new Error(
         `Failed to read CDK diff file at '${inputs.diffFile}'. Please verify the file exists and is readable. Original error: ${error52 instanceof Error ? error52.message : String(error52)}`
@@ -41297,57 +41370,50 @@ async function run() {
       );
     }
   });
-  const renderedDiff = await core5.group("Render CDK diff", async () => {
+  const renderedDiff = await core4.group("Render CDK diff", async () => {
     return renderCdkDiff(cdkDiff);
   });
-  const pullRequest = github3.context.payload.pull_request;
   const templateChangeArtifacts = inputs.awsRegion && inputs.beforeTemplate && inputs.afterTemplate ? buildTemplateChangeArtifactsFromPaths({
     source: sourceType,
     region: inputs.awsRegion,
     beforePath: inputs.beforeTemplate,
     afterPath: inputs.afterTemplate,
-    stackName: inputs.stackName || void 0,
-    beforeRevision: pullRequest?.base.sha,
-    afterRevision: pullRequest?.head.sha
+    stackName: inputs.stackName || void 0
   }) : null;
   const producedResourceChanges = inputs.awsRegion ? produceResourceChangeAppendix(
     () => templateChangeArtifacts ? createResourceChangeSet(templateChangeArtifacts.resourceChangeDraft) : buildCdkResourceChangeSetFromDiff({
       diffs: cdkDiff,
-      region: inputs.awsRegion,
-      beforeRevision: pullRequest?.base.sha,
-      afterRevision: pullRequest?.head.sha
+      region: inputs.awsRegion
     })
   ) : null;
   const resourceChangeSet = producedResourceChanges?.resourceChangeSet ?? null;
   const resourceChanges = producedResourceChanges?.appendix ?? renderResourceChangeSetError("The CDK producer requires the aws-region input");
   if (producedResourceChanges?.error) {
-    core5.warning(
+    core4.warning(
       `Could not publish Resource Change Set 1.0: ${producedResourceChanges.error instanceof Error ? producedResourceChanges.error.message : String(producedResourceChanges.error)}`
     );
   }
-  if (resourceChangeSet) core5.setOutput("resource-changes", JSON.stringify(resourceChangeSet));
+  if (resourceChangeSet) core4.setOutput("resource-changes", JSON.stringify(resourceChangeSet));
   const humanDiff = inputs.sourceType === "cloudformation" && templateChangeArtifacts ? renderCloudFormationChanges({ changes: templateChangeArtifacts.humanChanges }) : renderedDiff;
-  const usageAssumptions = await core5.group("Collect usage assumptions", () => usageAssumptionsSection({ octokit }));
-  const diffMarkdown = await core5.group("Render diff markdown", async () => {
+  const diffMarkdown = await core4.group("Render diff markdown", async () => {
     const humanMarkdown = renderMarkdown({
       diffs: humanDiff,
       header: inputs.header || (inputs.sourceType === "cloudformation" ? "\u{1F4DD} CloudFormation Changes" : void 0),
-      awsRegion: inputs.awsRegion || void 0,
-      usageAssumptions
+      awsRegion: inputs.awsRegion || void 0
     });
     const markdown = appendResourceChangeAppendix(humanMarkdown, resourceChanges);
-    core5.setOutput("markdown", markdown);
-    core5.setOutput("empty", cdkDiffsAreEmpty(humanDiff));
+    core4.setOutput("markdown", markdown);
+    core4.setOutput("empty", cdkDiffsAreEmpty(humanDiff));
     return markdown;
   });
-  await core5.group("Adding diff to step summary", async () => {
+  await core4.group("Adding diff to step summary", async () => {
     const markdownLength = diffMarkdown.length;
-    core5.info(`Writing ${markdownLength} characters to GitHub Actions step summary`);
-    await core5.summary.addRaw(diffMarkdown).write();
-    core5.info("Successfully wrote diff to step summary");
+    core4.info(`Writing ${markdownLength} characters to GitHub Actions step summary`);
+    await core4.summary.addRaw(diffMarkdown).write();
+    core4.info("Successfully wrote diff to step summary");
   });
-  if (isPullRequestCommentEvent(github3.context.eventName)) {
-    await core5.group("Render comment", () => {
+  if (isPullRequestCommentEvent(github2.context.eventName)) {
+    await core4.group("Render comment", () => {
       return createOrUpdateComment({ octokit, content: diffMarkdown });
     });
   }
@@ -41358,34 +41424,34 @@ async function main() {
   } catch (error52) {
     if (error52 instanceof Error) {
       if (error52.message.includes("Invalid AWS region")) {
-        core5.setFailed(error52.message);
+        core4.setFailed(error52.message);
         return;
       }
-      core5.error(`Error Type: ${error52.constructor.name}`);
-      core5.error(`Error Message: ${error52.message}`);
+      core4.error(`Error Type: ${error52.constructor.name}`);
+      core4.error(`Error Message: ${error52.message}`);
       if (error52.stack) {
-        core5.debug(`Stack Trace: ${error52.stack}`);
+        core4.debug(`Stack Trace: ${error52.stack}`);
       }
       if (error52.message.includes("diff file") || error52.message.includes("readFileSync")) {
-        core5.error("This appears to be a file reading error. Please verify:");
-        core5.error("  - The diff file path is correct");
-        core5.error("  - The file exists and is readable");
-        core5.error("  - The CDK diff command ran successfully before this action");
+        core4.error("This appears to be a file reading error. Please verify:");
+        core4.error("  - The diff file path is correct");
+        core4.error("  - The file exists and is readable");
+        core4.error("  - The CDK diff command ran successfully before this action");
       } else if (error52.message.includes("parse") || error52.message.includes("CDK diff output")) {
-        core5.error("This appears to be a parsing error. Please verify:");
-        core5.error("  - The CDK diff output is valid");
-        core5.error("  - The CDK version is compatible");
-        core5.error("  - The diff file contains expected CDK diff format");
+        core4.error("This appears to be a parsing error. Please verify:");
+        core4.error("  - The CDK diff output is valid");
+        core4.error("  - The CDK version is compatible");
+        core4.error("  - The diff file contains expected CDK diff format");
       } else if (error52.message.includes("GitHub")) {
-        core5.error("This appears to be a GitHub API error. Please verify:");
-        core5.error("  - The GitHub token has the necessary permissions");
-        core5.error("  - The repository exists and is accessible");
+        core4.error("This appears to be a GitHub API error. Please verify:");
+        core4.error("  - The GitHub token has the necessary permissions");
+        core4.error("  - The repository exists and is accessible");
       }
-      core5.setFailed(error52.message);
+      core4.setFailed(error52.message);
     } else {
       const errorMessage = String(error52);
-      core5.error(`Unknown error type: ${errorMessage}`);
-      core5.setFailed(errorMessage);
+      core4.error(`Unknown error type: ${errorMessage}`);
+      core4.setFailed(errorMessage);
     }
   }
 }
