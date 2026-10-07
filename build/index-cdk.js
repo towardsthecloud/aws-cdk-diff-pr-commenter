@@ -24304,7 +24304,7 @@ ${cell}` : cell;
   }
   return rows;
 }
-var RESOURCE_LINE = /^\[([+\-~])\]\s+(AWS::\S+)\s+(.+?)(?:\s+(?:replace|may be replaced|destroy|orphan|import))?(?:\s+\(OR move .*\))?$/;
+var RESOURCE_LINE = /^\[([+\-~])\]\s+(AWS::\S+)\s+(.+?)(?:\s+(replace|may be replaced|destroy|orphan|import))?(?:\s+\(OR move .*\))?$/;
 function parseSingleStack(stackOutput, stackName) {
   const result = {
     stackName,
@@ -24379,7 +24379,8 @@ function parseSingleStack(stackOutput, stackName) {
         resourceType: resource[2],
         logicalId,
         constructPath: identifiers.join(" ") || void 0,
-        changeType: changeTypeOf(resource[1])
+        changeType: changeTypeOf(resource[1]),
+        ...resource[1] === "-" && resource[4] === "orphan" ? { retained: true } : {}
       });
     }
   }
@@ -40417,16 +40418,18 @@ function renderResourceChangeSetError(message) {
 
 // src/resource-changes/cdk.ts
 function buildCdkResourceChangeSetFromDiff(options) {
-  const changes = [];
+  const changesByAddress = /* @__PURE__ */ new Map();
   for (const diff of options.diffs) {
     const stackName = diff.stackName ?? "unknown-stack";
     for (const resource of diff.resourceChanges) {
+      if (resource.changeType === "remove" && resource.retained) continue;
       const change = resource.changeType === "add" ? "add" : resource.changeType === "remove" ? "delete" : "modify";
       const unknownSide = { state: "unknown", reason: "template-unavailable" };
+      const address = `${stackName}/${resource.constructPath ?? resource.logicalId}`;
+      const changes = changesByAddress.get(address) ?? [];
       changes.push({
         identity: {
-          // Template-based change sets address CDK resources by construct path too
-          address: `${stackName}/${resource.constructPath ?? resource.logicalId}`,
+          address,
           logicalId: resource.logicalId,
           resourceType: resource.resourceType
         },
@@ -40434,12 +40437,21 @@ function buildCdkResourceChangeSetFromDiff(options) {
         old: change === "add" ? { state: "absent" } : unknownSide,
         new: change === "delete" ? { state: "absent" } : unknownSide
       });
+      changesByAddress.set(address, changes);
     }
   }
   return createResourceChangeSet({
     source: "cdk",
     region: options.region,
-    changes
+    changes: [...changesByAddress.values()].flatMap((changes) => {
+      if (changes.length !== 2) return changes;
+      const added = changes.find((change) => change.change === "add");
+      const removed = changes.find((change) => change.change === "delete");
+      if (!added || !removed || added.identity.resourceType !== removed.identity.resourceType || added.identity.logicalId === removed.identity.logicalId) {
+        return changes;
+      }
+      return [{ ...added, change: "modify", old: removed.old }];
+    })
   });
 }
 
