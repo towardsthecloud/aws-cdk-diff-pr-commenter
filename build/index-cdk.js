@@ -24304,7 +24304,7 @@ ${cell}` : cell;
   }
   return rows;
 }
-var RESOURCE_LINE = /^\[([+\-~])\]\s+(AWS::\S+)\s+(.+?)(?:\s+(replace|may be replaced|destroy|orphan|import))?(?:\s+\(OR move .*\))?$/;
+var RESOURCE_LINE = /^\[([+\-~])\]\s+(\w+::\S+)\s+(.+?)(?:\s+(replace|may be replaced|destroy|orphan|import))?(?:\s+\(OR move .*\))?$/;
 function parseSingleStack(stackOutput, stackName) {
   const result = {
     stackName,
