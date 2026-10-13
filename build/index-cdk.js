@@ -23999,23 +23999,26 @@ function renderSingleCdkDiff(diff) {
     removed: removedResources,
     updated: updatedResources
   } = partitionChanges(diff.resourceChanges);
+  const replacedResources = updatedResources.filter((resource) => resource.replacement);
+  const inPlaceResources = updatedResources.filter((resource) => !resource.replacement);
   if (addedResources.length > 0) result.addedResources = addedResources;
   if (removedResources.length > 0) result.removedResources = removedResources;
-  if (updatedResources.length > 0) result.updatedResources = updatedResources;
+  if (inPlaceResources.length > 0) result.updatedResources = inPlaceResources;
+  if (replacedResources.length > 0) result.replacedResources = replacedResources;
   return result;
 }
 function renderCdkDiff(diffs) {
   core.info(`Rendering ${diffs.length} CDK diff(s)`);
   const rendered = diffs.map((diff) => {
     const result = renderSingleCdkDiff(diff);
-    const changeCount = (result.addedIamStatements?.length || 0) + (result.removedIamStatements?.length || 0) + (result.updatedIamStatements?.length || 0) + (result.addedSecurityGroups?.length || 0) + (result.removedSecurityGroups?.length || 0) + (result.updatedSecurityGroups?.length || 0) + (result.addedParameters?.length || 0) + (result.removedParameters?.length || 0) + (result.updatedParameters?.length || 0) + (result.addedResources?.length || 0) + (result.removedResources?.length || 0) + (result.updatedResources?.length || 0);
+    const changeCount = (result.addedIamStatements?.length || 0) + (result.removedIamStatements?.length || 0) + (result.updatedIamStatements?.length || 0) + (result.addedSecurityGroups?.length || 0) + (result.removedSecurityGroups?.length || 0) + (result.updatedSecurityGroups?.length || 0) + (result.addedParameters?.length || 0) + (result.removedParameters?.length || 0) + (result.updatedParameters?.length || 0) + (result.addedResources?.length || 0) + (result.removedResources?.length || 0) + (result.updatedResources?.length || 0) + (result.replacedResources?.length || 0);
     core.info(`Rendered stack '${diff.stackName}' with ${changeCount} total change(s)`);
     return result;
   });
   return rendered;
 }
 function cdkDiffIsEmpty(diff) {
-  return !diff.addedIamStatements && !diff.removedIamStatements && !diff.updatedIamStatements && !diff.addedSecurityGroups && !diff.removedSecurityGroups && !diff.updatedSecurityGroups && !diff.addedParameters && !diff.removedParameters && !diff.updatedParameters && !diff.addedResources && !diff.removedResources && !diff.updatedResources;
+  return !diff.addedIamStatements && !diff.removedIamStatements && !diff.updatedIamStatements && !diff.addedSecurityGroups && !diff.removedSecurityGroups && !diff.updatedSecurityGroups && !diff.addedParameters && !diff.removedParameters && !diff.updatedParameters && !diff.addedResources && !diff.removedResources && !diff.updatedResources && !diff.replacedResources;
 }
 function cdkDiffsAreEmpty(diffs) {
   return diffs.length === 0 || diffs.every((diff) => cdkDiffIsEmpty(diff));
@@ -24077,6 +24080,7 @@ function renderResources(resources) {
     result += resource.constructPath ? `
 - **${resource.resourceType}**: \`${resource.constructPath}\` (\`${resource.logicalId}\`)` : `
 - **${resource.resourceType}**: \`${resource.logicalId}\``;
+    if (resource.replacement === "may be replaced") result += " (may be replaced)";
   }
   return result;
 }
@@ -24088,11 +24092,13 @@ function renderStackBody(diff) {
   const totalCreating = (diff.addedIamStatements?.length || 0) + (diff.addedSecurityGroups?.length || 0) + (diff.addedParameters?.length || 0) + (diff.addedResources?.length || 0);
   const totalUpdating = (diff.updatedIamStatements?.length || 0) + (diff.updatedSecurityGroups?.length || 0) + (diff.updatedParameters?.length || 0) + (diff.updatedResources?.length || 0);
   const totalDeleting = (diff.removedIamStatements?.length || 0) + (diff.removedSecurityGroups?.length || 0) + (diff.removedParameters?.length || 0) + (diff.removedResources?.length || 0);
+  const totalRecreating = diff.replacedResources?.length || 0;
   if (diff.stackName) {
     body += `### Stack: ${diff.stackName}
 `;
   }
-  body += `<b>\u2192 Changes: ${totalCreating} to create, ${totalUpdating} to update, ${totalDeleting} to delete</b>
+  const recreating = totalRecreating > 0 ? ` ${totalRecreating} to recreate,` : "";
+  body += `<b>\u2192 Changes: ${totalCreating} to create, ${totalUpdating} to update,${recreating} ${totalDeleting} to delete</b>
 
 `;
   if (diff.addedIamStatements || diff.updatedIamStatements || diff.removedIamStatements) {
@@ -24161,8 +24167,8 @@ function renderStackBody(diff) {
     }
     body += "<br>\n\n</details>\n\n";
   }
-  if (diff.addedResources || diff.updatedResources || diff.removedResources) {
-    const resourceTotal = (diff.addedResources?.length || 0) + (diff.updatedResources?.length || 0) + (diff.removedResources?.length || 0);
+  if (diff.addedResources || diff.updatedResources || diff.replacedResources || diff.removedResources) {
+    const resourceTotal = (diff.addedResources?.length || 0) + (diff.updatedResources?.length || 0) + (diff.replacedResources?.length || 0) + (diff.removedResources?.length || 0);
     body += `<details><summary><strong>\u{1F4E6} Resource Changes (${resourceTotal})</strong></summary>
 
 `;
@@ -24174,6 +24180,11 @@ function renderStackBody(diff) {
     if (diff.updatedResources) {
       body += `##### \u267B\uFE0F Updating (${diff.updatedResources.length})`;
       body += renderResources(diff.updatedResources);
+      body += "\n\n";
+    }
+    if (diff.replacedResources) {
+      body += `##### \u2699\uFE0F Recreating (${diff.replacedResources.length})`;
+      body += renderResources(diff.replacedResources);
       body += "\n\n";
     }
     if (diff.removedResources) {
@@ -24380,7 +24391,8 @@ function parseSingleStack(stackOutput, stackName) {
         logicalId,
         constructPath: identifiers.join(" ") || void 0,
         changeType: changeTypeOf(resource[1]),
-        ...resource[1] === "-" && resource[4] === "orphan" ? { retained: true } : {}
+        ...resource[1] === "-" && resource[4] === "orphan" ? { retained: true } : {},
+        ...resource[1] === "~" && (resource[4] === "replace" || resource[4] === "may be replaced") ? { replacement: resource[4] } : {}
       });
     }
   }
